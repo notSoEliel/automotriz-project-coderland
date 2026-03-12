@@ -1,38 +1,34 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import Layout from './components/layout/Layout';
 
-// Un componente rápido para proteger rutas
 const RutaProtegida = ({ children }) => {
     const token = localStorage.getItem('token');
     return token ? children : <Navigate to="/login" />;
 };
 
-// Componente temporal para el Dashboard
-const Dashboard = () => (
-    <div className="p-8">
-        <h1 className="text-3xl font-bold">Panel de Control (Próximamente Tablas)</h1>
-        <button
-            className="mt-4 px-4 py-2 bg-red-500 text-white rounded"
-            onClick={() => { localStorage.removeItem('token'); window.location.reload(); }}
-        >
-            Cerrar Sesión
-        </button>
-    </div>
-);
-
 function App() {
     return (
         <BrowserRouter>
             <Routes>
+                {/* Ruta Pública */}
                 <Route path="/login" element={<Login />} />
+
+                {/* Rutas Privadas envueltas en el Layout */}
                 <Route
                     path="/"
                     element={
                         <RutaProtegida>
-                            <Dashboard />
+                            <Layout />
                         </RutaProtegida>
                     }
-                />
+                >
+                    <Route index element={<Dashboard />} />
+                    {/* Aquí agregaremos las siguientes rutas como /agencias o /inventario */}
+                    <Route path="inventario" element={<div className="p-4">Vista de Inventario en construcción</div>} />
+                    <Route path="agencias" element={<div className="p-4">Vista de Agencias en construcción</div>} />
+                </Route>
             </Routes>
         </BrowserRouter>
     );
