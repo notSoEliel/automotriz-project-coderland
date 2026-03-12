@@ -4,6 +4,13 @@ import { ChevronRight, ArrowLeft } from 'lucide-react';
 export default function BreadcrumbInteractivo({ nivelActivo, seleccion, setSearchParams }) {
     
     const irAtras = () => {
+        if (nivelActivo === 'detalle_version') {
+            setSearchParams(params => {
+                params.delete('versionId');
+                params.delete('versionNombre');
+                return params;
+            });
+        }
         if (nivelActivo === 'versiones') {
             setSearchParams(params => {
                 params.delete('modeloId');
@@ -26,6 +33,16 @@ export default function BreadcrumbInteractivo({ nivelActivo, seleccion, setSearc
         setSearchParams(params => {
             params.delete('modeloId');
             params.delete('modeloNombre');
+            params.delete('versionId');
+            params.delete('versionNombre');
+            return params;
+        });
+    };
+
+    const saltarAModelo = () => {
+        setSearchParams(params => {
+            params.delete('versionId');
+            params.delete('versionNombre');
             return params;
         });
     };
@@ -42,7 +59,7 @@ export default function BreadcrumbInteractivo({ nivelActivo, seleccion, setSearc
             <div className="flex items-center text-sm">
                 {/* Nombre de la Marca (Interactivo si estamos más profundos) */}
                 <button 
-                    onClick={nivelActivo === 'versiones' ? saltarAMarca : undefined}
+                    onClick={nivelActivo !== 'modelos' ? saltarAMarca : undefined}
                     className={`font-medium transition-colors ${
                         nivelActivo === 'modelos' 
                             ? 'text-zinc-950 font-bold cursor-default' 
@@ -56,8 +73,25 @@ export default function BreadcrumbInteractivo({ nivelActivo, seleccion, setSearc
                 {seleccion.modelo && (
                     <>
                         <ChevronRight size={16} className="mx-2 text-zinc-400" />
-                        <span className="text-zinc-950 font-bold cursor-default">
+                        <button 
+                            onClick={nivelActivo === 'detalle_version' ? saltarAModelo : undefined}
+                            className={`font-medium transition-colors ${
+                                nivelActivo === 'versiones' 
+                                    ? 'text-zinc-950 font-bold cursor-default' 
+                                    : 'text-zinc-500 hover:text-zinc-950 cursor-pointer hover:underline'
+                            }`}
+                        >
                             {seleccion.modelo.nombre}
+                        </button>
+                    </>
+                )}
+
+                {/* Separador y Nombre de la Versión */}
+                {seleccion.version && (
+                    <>
+                        <ChevronRight size={16} className="mx-2 text-zinc-400" />
+                        <span className="text-zinc-950 font-bold cursor-default">
+                            {seleccion.version.nombre}
                         </span>
                     </>
                 )}

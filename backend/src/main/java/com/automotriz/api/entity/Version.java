@@ -60,4 +60,7 @@ public class Version {
     @ManyToOne
     @JoinColumn(name = "modelo_id", nullable = false)
     private Modelo modelo;
+
+    @OneToMany(mappedBy = "version", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VersionMultimedia> galerias;
 }

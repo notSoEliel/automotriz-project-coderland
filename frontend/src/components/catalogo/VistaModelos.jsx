@@ -102,7 +102,7 @@ export default function VistaModelos({ marcaSeleccionada, entrarAVersion }) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {modelos.map((modelo) => (
                         <Card key={modelo.id} className="cursor-pointer hover:border-emerald-500 hover:shadow-md transition-all group overflow-hidden relative" onClick={() => entrarAVersion(modelo)}>
-                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                            <div className="absolute top-2 right-2 z-10">
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                                         <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-400 hover:text-zinc-900 bg-white/80 backdrop-blur-sm"><MoreVertical size={16} /></Button>

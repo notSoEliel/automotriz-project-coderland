@@ -133,7 +133,7 @@ export default function VistaMarcas({ entrarAModelo }) {
                             onClick={() => entrarAModelo(marca)}
                         >
                             {/* Menú de opciones (Editar/Eliminar) */}
-                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="absolute top-2 right-2 z-10">
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                                         <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-400 hover:text-zinc-900 bg-white/80 backdrop-blur-sm">
