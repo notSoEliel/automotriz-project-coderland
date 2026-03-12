@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSearchParams } from 'react-router-dom';
+import SubNavCatalogo from '@/components/catalogo/SubNavCatalogo';
 import { CarFront } from 'lucide-react';
 import BreadcrumbInteractivo from '@/components/catalogo/BreadcrumbInteractivo';
 import VistaMarcas from '@/components/catalogo/VistaMarcas';
@@ -7,17 +7,37 @@ import VistaModelos from '@/components/catalogo/VistaModelos';
 import VistaVersiones from '@/components/catalogo/VistaVersiones';
 
 export default function Catalogo() {
-    const [nivelActivo, setNivelActivo] = useState('marcas'); // 'marcas', 'modelos', 'versiones'
-    const [seleccion, setSeleccion] = useState({ marca: null, modelo: null });
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    // Derived state from URL params
+    const marcaId = searchParams.get('marcaId');
+    const marcaNombre = searchParams.get('marcaNombre');
+    const modeloId = searchParams.get('modeloId');
+    const modeloNombre = searchParams.get('modeloNombre');
+
+    let nivelActivo = 'marcas';
+    if (marcaId && modeloId) {
+        nivelActivo = 'versiones';
+    } else if (marcaId) {
+        nivelActivo = 'modelos';
+    }
+
+    const seleccion = {
+        marca: marcaId ? { id: parseInt(marcaId), nombre: marcaNombre } : null,
+        modelo: modeloId ? { id: parseInt(modeloId), nombre: modeloNombre } : null
+    };
 
     const entrarAModelo = (marca) => {
-        setSeleccion({ ...seleccion, marca });
-        setNivelActivo('modelos');
+        setSearchParams({ marcaId: marca.id, marcaNombre: marca.nombre });
     };
 
     const entrarAVersion = (modelo) => {
-        setSeleccion({ ...seleccion, modelo });
-        setNivelActivo('versiones');
+        setSearchParams({ 
+            marcaId, 
+            marcaNombre, 
+            modeloId: modelo.id, 
+            modeloNombre: modelo.nombre 
+        });
     };
 
     return (
@@ -32,46 +52,34 @@ export default function Catalogo() {
                 </p>
             </div>
 
-            <Tabs defaultValue="galeria" className="w-full">
-                <TabsList className="grid w-full max-w-md grid-cols-2 mb-8">
-                    <TabsTrigger value="galeria">Gestión de Marcas</TabsTrigger>
-                    <TabsTrigger value="inventario">Catálogo / Inventario</TabsTrigger>
-                </TabsList>
+            <SubNavCatalogo />
 
-                <TabsContent value="galeria" className="space-y-4">
-                    {/* El nuevo componente interactivo */}
-                    <BreadcrumbInteractivo
-                        nivelActivo={nivelActivo}
-                        seleccion={seleccion}
-                        setNivelActivo={setNivelActivo}
-                        setSeleccion={setSeleccion}
+            <div className="space-y-4">
+                {/* El nuevo componente interactivo */}
+                <BreadcrumbInteractivo
+                    nivelActivo={nivelActivo}
+                    seleccion={seleccion}
+                    setSearchParams={setSearchParams}
+                />
+
+                {/* Renderizado Condicional Limpio */}
+                {nivelActivo === 'marcas' && (
+                    <VistaMarcas entrarAModelo={entrarAModelo} />
+                )}
+
+                {nivelActivo === 'modelos' && (
+                    <VistaModelos
+                        marcaSeleccionada={seleccion.marca}
+                        entrarAVersion={entrarAVersion}
                     />
+                )}
 
-                    {/* Renderizado Condicional Limpio */}
-                    {nivelActivo === 'marcas' && (
-                        <VistaMarcas entrarAModelo={entrarAModelo} />
-                    )}
-
-                    {nivelActivo === 'modelos' && (
-                        <VistaModelos
-                            marcaSeleccionada={seleccion.marca}
-                            entrarAVersion={entrarAVersion}
-                        />
-                    )}
-
-                    {nivelActivo === 'versiones' && (
-                        <VistaVersiones
-                            modeloSeleccionado={seleccion.modelo}
-                        />
-                    )}
-                </TabsContent>
-
-                <TabsContent value="inventario">
-                    <div className="p-4 border-2 border-dashed border-zinc-200 bg-zinc-50 rounded-lg text-zinc-800 text-center">
-                        Aquí irá el componente `TablaInventario.jsx` (Vehículos Físicos con VIN)
-                    </div>
-                </TabsContent>
-            </Tabs>
+                {nivelActivo === 'versiones' && (
+                    <VistaVersiones
+                        modeloSeleccionado={seleccion.modelo}
+                    />
+                )}
+            </div>
         </div>
     );
 }

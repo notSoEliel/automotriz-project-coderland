@@ -1,19 +1,33 @@
 import { Button } from "@/components/ui/button";
 import { ChevronRight, ArrowLeft } from 'lucide-react';
 
-export default function BreadcrumbInteractivo({ nivelActivo, seleccion, setNivelActivo, setSeleccion }) {
+export default function BreadcrumbInteractivo({ nivelActivo, seleccion, setSearchParams }) {
     
     const irAtras = () => {
-        if (nivelActivo === 'versiones') setNivelActivo('modelos');
+        if (nivelActivo === 'versiones') {
+            setSearchParams(params => {
+                params.delete('modeloId');
+                params.delete('modeloNombre');
+                return params;
+            });
+        }
         if (nivelActivo === 'modelos') {
-            setNivelActivo('marcas');
-            setSeleccion({ marca: null, modelo: null });
+            setSearchParams(params => {
+                params.delete('marcaId');
+                params.delete('marcaNombre');
+                params.delete('modeloId');
+                params.delete('modeloNombre');
+                return params;
+            });
         }
     };
 
     const saltarAMarca = () => {
-        setNivelActivo('modelos');
-        setSeleccion({ marca: seleccion.marca, modelo: null });
+        setSearchParams(params => {
+            params.delete('modeloId');
+            params.delete('modeloNombre');
+            return params;
+        });
     };
 
     if (nivelActivo === 'marcas') return null;

@@ -3,8 +3,8 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Layout from './components/layout/Layout';
 import Agencias from './pages/Agencias';
-import Vehiculos from './pages/Catalogo';
 import Catalogo from './pages/Catalogo';
+import Inventario from './pages/Inventario';
 
 const RutaProtegida = ({ children }) => {
     const token = localStorage.getItem('token');
@@ -28,7 +28,8 @@ function App() {
                     }
                 >
                     <Route index element={<Dashboard />} />
-                    <Route path="inventario" element={<Catalogo />} />
+                    <Route path="catalogo" element={<Catalogo />} />
+                    <Route path="inventario" element={<Inventario />} />
                     <Route path="agencias" element={<Agencias />} />
                 </Route>
             </Routes>
