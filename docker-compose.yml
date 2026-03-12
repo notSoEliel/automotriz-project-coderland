@@ -34,10 +34,12 @@ services:
 
   # Frontend (React 19)
   frontend:
-    build: ./frontend
-    container_name: automotriz-ui
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: automotriz-frontend
     ports:
-      - "5173:5173"
+      - "5173:80"
     depends_on:
       - backend
     networks:
