@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Layout from './components/layout/Layout';
+import Agencias from './pages/Agencias';
 
 const RutaProtegida = ({ children }) => {
     const token = localStorage.getItem('token');
@@ -25,9 +26,8 @@ function App() {
                     }
                 >
                     <Route index element={<Dashboard />} />
-                    {/* Aquí agregaremos las siguientes rutas como /agencias o /inventario */}
                     <Route path="inventario" element={<div className="p-4">Vista de Inventario en construcción</div>} />
-                    <Route path="agencias" element={<div className="p-4">Vista de Agencias en construcción</div>} />
+                    <Route path="agencias" element={<Agencias />} />
                 </Route>
             </Routes>
         </BrowserRouter>
