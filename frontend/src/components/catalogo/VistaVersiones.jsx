@@ -481,8 +481,8 @@ export default function VistaVersiones({ modeloSeleccionado }) {
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
-                            <div className="h-32 bg-zinc-100 flex items-center justify-center border-b border-zinc-100 relative">
-                                {version.imagenDefecto ? <img src={`http://localhost:8080${version.imagenDefecto.startsWith('/') ? '' : '/'}${version.imagenDefecto}`} alt="Coche" className="w-full h-full object-cover" /> : <ImageIcon size={32} className="text-zinc-300" />}
+                            <div className="aspect-[4/3] w-full bg-zinc-100 flex items-center justify-center border-b border-zinc-100 relative overflow-hidden">
+                                {version.imagenDefecto ? <img src={`http://localhost:8080${version.imagenDefecto.startsWith('/') ? '' : '/'}${version.imagenDefecto}`} alt="Coche" className="w-full h-full object-contain p-2" /> : <ImageIcon size={32} className="text-zinc-300" />}
                                 <div className="absolute bottom-2 left-2 bg-zinc-900/80 text-white text-[10px] font-bold px-2 py-1 rounded-md backdrop-blur-sm">
                                     ${parseFloat(version.precioVentaBaseUsd).toLocaleString()}
                                 </div>

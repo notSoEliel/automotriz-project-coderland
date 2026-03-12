@@ -113,8 +113,16 @@ export default function VistaModelos({ marcaSeleccionada, entrarAVersion }) {
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
-                            <div className="h-24 bg-zinc-100 flex items-center justify-center border-b border-zinc-100">
-                                <ImageIcon size={24} className="text-zinc-300" />
+                            <div className="aspect-[4/3] w-full bg-zinc-100 flex items-center justify-center border-b border-zinc-100 relative overflow-hidden">
+                                {modelo.imagenDestacada ? (
+                                    <img 
+                                        src={`http://localhost:8080${modelo.imagenDestacada.startsWith('/') ? '' : '/'}${modelo.imagenDestacada}`} 
+                                        alt={modelo.nombre} 
+                                        className="w-full h-full object-contain p-2" 
+                                    />
+                                ) : (
+                                    <ImageIcon size={24} className="text-zinc-300" />
+                                )}
                             </div>
                             <CardContent className="p-4 bg-white">
                                 <h3 className="font-semibold text-zinc-900">{modelo.nombre}</h3>

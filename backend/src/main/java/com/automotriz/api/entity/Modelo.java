@@ -23,4 +23,8 @@ public class Modelo {
     @ManyToOne
     @JoinColumn(name = "marca_id", nullable = false)
     private Marca marca;
+
+    // Campo transitorio para la imagen de portada devuelta en la API
+    @Transient
+    private String imagenDestacada;
 }

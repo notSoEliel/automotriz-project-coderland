@@ -3,8 +3,10 @@ package com.automotriz.api.controller;
 import com.automotriz.api.dto.ModeloDTO;
 import com.automotriz.api.entity.Marca;
 import com.automotriz.api.entity.Modelo;
+import com.automotriz.api.entity.Version;
 import com.automotriz.api.repository.MarcaRepository;
 import com.automotriz.api.repository.ModeloRepository;
+import com.automotriz.api.repository.VersionRepository;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +21,12 @@ public class ModeloController {
 
     private final ModeloRepository modeloRepository;
     private final MarcaRepository marcaRepository;
+    private final VersionRepository versionRepository;
 
-    public ModeloController(ModeloRepository modeloRepository, MarcaRepository marcaRepository) {
+    public ModeloController(ModeloRepository modeloRepository, MarcaRepository marcaRepository, VersionRepository versionRepository) {
         this.modeloRepository = modeloRepository;
         this.marcaRepository = marcaRepository;
+        this.versionRepository = versionRepository;
     }
 
     @GetMapping
@@ -74,6 +78,14 @@ public class ModeloController {
     @GetMapping("/marca/{marcaId}")
     public ResponseEntity<List<Modelo>> obtenerModelosPorMarca(@PathVariable Long marcaId) {
         List<Modelo> modelos = modeloRepository.findByMarcaId(marcaId);
+        
+        for (Modelo modelo : modelos) {
+            List<Version> versiones = versionRepository.findByModeloId(modelo.getId());
+            if (!versiones.isEmpty()) {
+                modelo.setImagenDestacada(versiones.get(0).getImagenDefecto());
+            }
+        }
+        
         return new ResponseEntity<>(modelos, HttpStatus.OK);
     }
 }
