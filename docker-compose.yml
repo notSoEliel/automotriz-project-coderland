@@ -1,0 +1,52 @@
+services:
+  # Base de Datos
+  db:
+    image: postgres:18.3
+    container_name: automotriz-db
+    restart: always
+    environment:
+      POSTGRES_USER: user_admin
+      POSTGRES_PASSWORD: secret_password
+      POSTGRES_DB: automotriz_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    networks:
+      - automotriz-network
+
+  # Backend (Spring Boot 4)
+  backend:
+    build: ./backend
+    container_name: automotriz-api
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/automotriz_db
+      SPRING_DATASOURCE_USERNAME: user_admin
+      SPRING_DATASOURCE_PASSWORD: secret_password
+    networks:
+      - automotriz-network
+    volumes:
+      - ./uploads:/app/uploads
+
+  # Frontend (React 19)
+  frontend:
+    build: ./frontend
+    container_name: automotriz-ui
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - automotriz-network
+
+networks:
+  automotriz-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+
