@@ -18,9 +18,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> credenciales) {
-        String username = credenciales.get("username");
-        String password = credenciales.get("password");
+    public ResponseEntity<?> login(@RequestBody com.automotriz.api.dto.LoginDTO credenciales) {
+        String username = credenciales.getUsername();
+        String password = credenciales.getPassword();
 
         // Credenciales fijas para el reto técnico
         if ("admin".equals(username) && "coderland2026".equals(password)) {
