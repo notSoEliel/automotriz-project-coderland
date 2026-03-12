@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.automotriz.api.service.FileStorageService;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,10 +21,12 @@ public class VersionController {
 
     private final VersionRepository versionRepository;
     private final ModeloRepository modeloRepository;
+    private final FileStorageService fileStorageService;
 
-    public VersionController(VersionRepository versionRepository, ModeloRepository modeloRepository) {
+    public VersionController(VersionRepository versionRepository, ModeloRepository modeloRepository, FileStorageService fileStorageService) {
         this.versionRepository = versionRepository;
         this.modeloRepository = modeloRepository;
+        this.fileStorageService = fileStorageService;
     }
 
     @GetMapping
@@ -80,5 +84,31 @@ public class VersionController {
         version.setPrecioAlquilerBaseUsd(dto.getPrecioAlquilerBaseUsd());
         version.setPrecioAlquilerBaseVes(dto.getPrecioAlquilerBaseVes());
         version.setModelo(modelo);
+    }
+
+    @GetMapping("/modelo/{modeloId}")
+    public ResponseEntity<List<Version>> obtenerVersionesPorModelo(@PathVariable Long modeloId) {
+        List<Version> versiones = versionRepository.findByModeloId(modeloId);
+        return new ResponseEntity<>(versiones, HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/foto")
+    public ResponseEntity<?> subirFotoDefecto(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        Optional<Version> versionOpt = versionRepository.findById(id);
+        if (versionOpt.isEmpty()) {
+            return new ResponseEntity<>("La versión especificada no existe", HttpStatus.NOT_FOUND);
+        }
+
+        try {
+            String rutaWebp = fileStorageService.guardarImagenWebp(file);
+            Version version = versionOpt.get();
+            version.setImagenDefecto(rutaWebp);
+            versionRepository.save(version);
+            return new ResponseEntity<>(version, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error al procesar la imagen de la versión", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

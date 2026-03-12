@@ -70,4 +70,10 @@ public class ModeloController {
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
+
+    @GetMapping("/marca/{marcaId}")
+    public ResponseEntity<List<Modelo>> obtenerModelosPorMarca(@PathVariable Long marcaId) {
+        List<Modelo> modelos = modeloRepository.findByMarcaId(marcaId);
+        return new ResponseEntity<>(modelos, HttpStatus.OK);
+    }
 }

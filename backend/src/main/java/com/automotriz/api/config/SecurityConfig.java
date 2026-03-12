@@ -29,7 +29,7 @@ public class SecurityConfig {
                 .cors(withDefaults()) // 1. Habilitar CORS
                 .csrf(csrf -> csrf.disable()) // 2. Deshabilitar CSRF
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api/auth/login", "/swagger-ui/**", "/v3/api-docs/**", "/error", "/scalar/**", "/uploads/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
                         .anyRequest().authenticated()
                 )
