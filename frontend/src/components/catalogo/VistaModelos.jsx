@@ -7,8 +7,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Plus, Pencil, Trash2, MoreVertical, Image as ImageIcon } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import ConfirmModal from '@/components/ui/ConfirmModal';
+import PostCreationModal from '@/components/ui/PostCreationModal';
 
-export default function VistaModelos({ marcaSeleccionada, entrarAVersion }) {
+export default function VistaModelos({ marcaSeleccionada, entrarAVersion, autoOpenCreate, onModalClosed }) {
     const [modelos, setModelos] = useState([]);
     const [cargando, setCargando] = useState(true);
     const [refreshKey, setRefreshKey] = useState(0);
@@ -17,6 +18,17 @@ export default function VistaModelos({ marcaSeleccionada, entrarAVersion }) {
     const [modeloIdEdicion, setModeloIdEdicion] = useState(null);
     const [formulario, setFormulario] = useState({ nombre: '', marcaId: marcaSeleccionada.id });
     const [confirmObj, setConfirmObj] = useState({ isOpen: false, id: null });
+
+    // Estados del Post-Creation Modal
+    const [showPostModal, setShowPostModal] = useState(false);
+    const [newlyCreatedModel, setNewlyCreatedModel] = useState(null);
+
+    // Auto-open effect
+    useEffect(() => {
+        if (autoOpenCreate) {
+            abrirModalCrear();
+        }
+    }, [autoOpenCreate]);
 
     // Cargar Modelos de ESTA marca específica
     useEffect(() => {
@@ -71,19 +83,34 @@ export default function VistaModelos({ marcaSeleccionada, entrarAVersion }) {
         try {
             if (modeloIdEdicion) {
                 await clienteAxios.put(`/modelos/${modeloIdEdicion}`, formulario);
+                setModalAbierto(false);
+                setRefreshKey(prev => prev + 1);
+                if (onModalClosed) onModalClosed();
             } else {
-                await clienteAxios.post('/modelos', formulario);
+                const res = await clienteAxios.post('/modelos', formulario);
+                setModalAbierto(false);
+                setRefreshKey(prev => prev + 1);
+                if (onModalClosed) onModalClosed();
+
+                // Show the post-creation modal for new models
+                setNewlyCreatedModel(res.data);
+                setShowPostModal(true);
             }
-            setModalAbierto(false);
-            setRefreshKey(prev => prev + 1);
         } catch (error) {
             console.error("Error al guardar:", error);
         }
     };
 
+    const handleCerrarModal = (abierto) => {
+        setModalAbierto(abierto);
+        if (!abierto && onModalClosed) {
+            onModalClosed();
+        }
+    };
+
     return (
         <div className="space-y-4">
-            <Dialog open={modalAbierto} onOpenChange={setModalAbierto}>
+            <Dialog open={modalAbierto} onOpenChange={handleCerrarModal}>
                 <DialogContent className="sm:max-w-[400px]">
                     <DialogHeader>
                         <DialogTitle>{modeloIdEdicion ? 'Editar Modelo' : `Añadir Modelo a ${marcaSeleccionada.nombre}`}</DialogTitle>
@@ -95,7 +122,7 @@ export default function VistaModelos({ marcaSeleccionada, entrarAVersion }) {
                             <Input name="nombre" value={formulario.nombre} onChange={handleInputChange} placeholder="Ej. Corolla, Civic..." required />
                         </div>
                         <div className="flex justify-end gap-3 pt-4 border-t border-zinc-100">
-                            <Button type="button" variant="outline" onClick={() => setModalAbierto(false)}>Cancelar</Button>
+                            <Button type="button" variant="outline" onClick={() => handleCerrarModal(false)}>Cancelar</Button>
                             <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700">Guardar</Button>
                         </div>
                     </form>
@@ -152,6 +179,21 @@ export default function VistaModelos({ marcaSeleccionada, entrarAVersion }) {
                 titulo="¿Eliminar Modelo?" 
                 mensaje="¿Estás seguro de que deseas eliminar este modelo y todas sus versiones asociadas?"
             />
+
+            {/* Modal post-creación de modelo */}
+            {newlyCreatedModel && (
+                <PostCreationModal
+                    isOpen={showPostModal}
+                    onClose={() => setShowPostModal(false)}
+                    onContinue={() => {
+                        setShowPostModal(false);
+                        entrarAVersion(newlyCreatedModel, true); // true param para auto-abrir modal
+                    }}
+                    entityName={`Modelo "${newlyCreatedModel.nombre}"`}
+                    nextStepName="Agregar Versión"
+                    description={`El registro fue exitoso.`}
+                />
+            )}
         </div>
     );
 }

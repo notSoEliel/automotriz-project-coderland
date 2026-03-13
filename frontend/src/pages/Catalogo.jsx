@@ -17,6 +17,7 @@ export default function Catalogo() {
     const modeloNombre = searchParams.get('modeloNombre');
     const versionId = searchParams.get('versionId');
     const versionNombre = searchParams.get('versionNombre');
+    const autoOpenCreate = searchParams.get('autoOpenCreate') === 'true';
 
     let nivelActivo = 'marcas';
     if (marcaId && modeloId && versionId) {
@@ -33,17 +34,21 @@ export default function Catalogo() {
         version: versionId ? { id: parseInt(versionId), nombre: versionNombre } : null
     };
 
-    const entrarAModelo = (marca) => {
-        setSearchParams({ marcaId: marca.id, marcaNombre: marca.nombre });
+    const entrarAModelo = (marca, autoOpen = false) => {
+        const params = { marcaId: marca.id, marcaNombre: marca.nombre };
+        if (autoOpen) params.autoOpenCreate = 'true';
+        setSearchParams(params);
     };
 
-    const entrarAVersion = (modelo) => {
-        setSearchParams({ 
+    const entrarAVersion = (modelo, autoOpen = false) => {
+        const params = { 
             marcaId, 
             marcaNombre, 
             modeloId: modelo.id, 
             modeloNombre: modelo.nombre 
-        });
+        };
+        if (autoOpen) params.autoOpenCreate = 'true';
+        setSearchParams(params);
     };
 
     const entrarADetalleVersion = (version) => {
@@ -88,6 +93,13 @@ export default function Catalogo() {
                     <VistaModelos
                         marcaSeleccionada={seleccion.marca}
                         entrarAVersion={entrarAVersion}
+                        autoOpenCreate={autoOpenCreate}
+                        onModalClosed={() => {
+                            if (autoOpenCreate) {
+                                searchParams.delete('autoOpenCreate');
+                                setSearchParams(searchParams);
+                            }
+                        }}
                     />
                 )}
 
@@ -95,6 +107,13 @@ export default function Catalogo() {
                     <VistaVersiones
                         modeloSeleccionado={seleccion.modelo}
                         entrarADetalleVersion={entrarADetalleVersion}
+                        autoOpenCreate={autoOpenCreate}
+                        onModalClosed={() => {
+                            if (autoOpenCreate) {
+                                searchParams.delete('autoOpenCreate');
+                                setSearchParams(searchParams);
+                            }
+                        }}
                     />
                 )}
 

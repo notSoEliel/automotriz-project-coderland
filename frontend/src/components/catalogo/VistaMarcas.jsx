@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import ConfirmModal from '@/components/ui/ConfirmModal';
+import PostCreationModal from '@/components/ui/PostCreationModal';
 import { useError } from '@/context/ErrorContext';
 
 export default function VistaMarcas({ entrarAModelo }) {
@@ -30,6 +31,11 @@ export default function VistaMarcas({ entrarAModelo }) {
     const [marcaIdEdicion, setMarcaIdEdicion] = useState(null);
     const [formulario, setFormulario] = useState({ nombre: '' });
     const [confirmObj, setConfirmObj] = useState({ isOpen: false, id: null });
+    
+    // Estados del Post-Creation Modal
+    const [showPostModal, setShowPostModal] = useState(false);
+    const [newlyCreatedBrand, setNewlyCreatedBrand] = useState(null);
+    
     const { showModal } = useError();
 
     // Cargar Marcas
@@ -91,13 +97,20 @@ export default function VistaMarcas({ entrarAModelo }) {
         try {
             if (marcaIdEdicion) {
                 await clienteAxios.put(`/marcas/${marcaIdEdicion}`, formulario);
+                setModalAbierto(false);
+                setRefreshKey(prev => prev + 1);
             } else {
-                await clienteAxios.post('/marcas', formulario);
+                const res = await clienteAxios.post('/marcas', formulario);
+                setModalAbierto(false);
+                setRefreshKey(prev => prev + 1);
+                
+                // Show the post-creation modal for new brands
+                setNewlyCreatedBrand(res.data);
+                setShowPostModal(true);
             }
-            setModalAbierto(false);
-            setRefreshKey(prev => prev + 1);
         } catch (error) {
             console.error("Error al guardar marca:", error);
+            showModal("Hubo un problema al guardar la marca.", "Error");
         }
     };
 
@@ -195,6 +208,21 @@ export default function VistaMarcas({ entrarAModelo }) {
                 titulo="¿Eliminar Marca?" 
                 mensaje="¿Estás seguro de eliminar esta marca? Todas las asociaciones serán eliminadas si no hay restricciones activas."
             />
+
+            {/* Modal post-creación de marca */}
+            {newlyCreatedBrand && (
+                <PostCreationModal
+                    isOpen={showPostModal}
+                    onClose={() => setShowPostModal(false)}
+                    onContinue={() => {
+                        setShowPostModal(false);
+                        entrarAModelo(newlyCreatedBrand, true); // true param para auto-abrir modal
+                    }}
+                    entityName={`Marca "${newlyCreatedBrand.nombre}"`}
+                    nextStepName="Agregar Modelo"
+                    description={`El registro fue exitoso.`}
+                />
+            )}
         </div>
     );
 }

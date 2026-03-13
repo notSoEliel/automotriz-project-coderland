@@ -54,33 +54,31 @@ public class SeedDataRunner implements CommandLineRunner {
         Modelo civic = modeloRepository.save(new Modelo(null, "Civic", honda, null));
 
         Version corollaLe = new Version();
-        corollaLe.setTitulo("Corolla LE 2024");
+        corollaLe.setTitulo("LE 2024");
         corollaLe.setDescripcion("Versión base económica.");
         corollaLe.setAno(2024);
         corollaLe.setMotor("Combustión");
         corollaLe.setCilindrada("1800 cc");
         corollaLe.setPrecioVentaBaseUsd(new BigDecimal("22500"));
         corollaLe.setPrecioVentaBaseVes(new BigDecimal("996075"));
-        corollaLe.setPrecioAlquilerBaseUsd(new BigDecimal("45"));
         corollaLe.setPrecioAlquilerBaseVes(new BigDecimal("1992"));
+        corollaLe.setColoresDisponibles(List.of("Blanco Perla", "Plata Metálico", "Negro Mica", "Azul Grisáceo"));
         corollaLe.setModelo(corolla);
-        // TODO: Añadir imagen principal de la versión (ej. cargar archivo en "/uploads/versiones/corolla_le.webp")
-        // corollaLe.setImagenDefecto("/uploads/versiones/corolla_le.webp");
+        corollaLe.setImagenDefecto("/uploads/versiones/corolla_le.webp");
         versionRepository.save(corollaLe);
 
         Version mustangGt = new Version();
-        mustangGt.setTitulo("Mustang GT Premium");
+        mustangGt.setTitulo("GT Premium");
         mustangGt.setDescripcion("Potencia americana.");
         mustangGt.setAno(2024);
         mustangGt.setMotor("Combustión");
         mustangGt.setCilindrada("5000 cc");
         mustangGt.setPrecioVentaBaseUsd(new BigDecimal("48000"));
         mustangGt.setPrecioVentaBaseVes(new BigDecimal("2124960"));
-        mustangGt.setPrecioAlquilerBaseUsd(new BigDecimal("120"));
         mustangGt.setPrecioAlquilerBaseVes(new BigDecimal("5312"));
+        mustangGt.setColoresDisponibles(List.of("Rojo Race", "Gris Magnético", "Azul Atlas"));
         mustangGt.setModelo(mustang);
-        // TODO: Añadir imagen principal de la versión (ej. cargar archivo en "/uploads/versiones/mustang_gt.webp")
-        // mustangGt.setImagenDefecto("/uploads/versiones/mustang_gt.webp");
+        mustangGt.setImagenDefecto("/uploads/versiones/mustang_gt.webp");
         versionRepository.save(mustangGt);
 
         Agencia agencia = new Agencia();

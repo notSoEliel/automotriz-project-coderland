@@ -13,7 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Plus, Pencil, Trash2, MoreVertical, Image as ImageIcon, Upload, Lock, Unlock, X, ExternalLink } from 'lucide-react';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 
-export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersion }) {
+export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersion, autoOpenCreate, onModalClosed }) {
     const [versiones, setVersiones] = useState([]);
     const [cargando, setCargando] = useState(true);
     const [refreshKey, setRefreshKey] = useState(0);
@@ -53,6 +53,13 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
     const [autoVenta, setAutoVenta] = useState(true);
     const [autoAlquiler, setAutoAlquiler] = useState(true);
     const memoriaVes = useRef({ venta: '', alquiler: '' });
+
+    // Auto-open effect
+    useEffect(() => {
+        if (autoOpenCreate) {
+            abrirModalCrear();
+        }
+    }, [autoOpenCreate]);
 
     useEffect(() => {
         const fetchVersiones = async () => {
@@ -229,7 +236,15 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
 
             setModalAbierto(false);
             setRefreshKey(prev => prev + 1);
+            if (onModalClosed) onModalClosed();
         } catch (error) { console.error("Error al guardar:", error); }
+    };
+
+    const handleCerrarModal = (abierto) => {
+        setModalAbierto(abierto);
+        if (!abierto && onModalClosed) {
+            onModalClosed();
+        }
     };
 
     // Helper para bloquear teclas en inputs numéricos
@@ -243,7 +258,7 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
 
     return (
         <div className="space-y-4">
-            <Dialog open={modalAbierto} onOpenChange={setModalAbierto}>
+            <Dialog open={modalAbierto} onOpenChange={handleCerrarModal}>
                 <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>Añadir Versión a {modeloSeleccionado.nombre}</DialogTitle>
@@ -479,7 +494,7 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
                         </div>
 
                         <div className="flex justify-end gap-3 pt-6 border-t border-zinc-100">
-                            <Button type="button" variant="outline" onClick={() => setModalAbierto(false)}>Cancelar</Button>
+                            <Button type="button" variant="outline" onClick={() => handleCerrarModal(false)}>Cancelar</Button>
                             <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700">Guardar Versión</Button>
                         </div>
                     </form>

@@ -27,6 +27,8 @@ export default function ModalVehiculo({ abierto, setAbierto, vehiculo, agencias,
     const [usarPreciosSugeridos, setUsarPreciosSugeridos] = useState(true);
     const [guardando, setGuardando] = useState(false);
     const [generandoPlaca, setGenerandoPlaca] = useState(false);
+    const [cargandoModelos, setCargandoModelos] = useState(false);
+    const [cargandoVersiones, setCargandoVersiones] = useState(false);
     const { showModal } = useError();
 
     useEffect(() => {
@@ -57,22 +59,38 @@ export default function ModalVehiculo({ abierto, setAbierto, vehiculo, agencias,
 
     useEffect(() => {
         if (marcaSeleccionada) {
-            clienteAxios.get(`/modelos/marca/${marcaSeleccionada}`).then(r => setModelos(r.data)).catch(console.error);
+            setCargandoModelos(true);
+            clienteAxios.get(`/modelos/marca/${marcaSeleccionada}`)
+                .then(r => setModelos(r.data))
+                .catch(console.error)
+                .finally(() => setCargandoModelos(false));
+
             if (!vehiculo || vehiculo.version?.modelo?.marca?.id?.toString() !== marcaSeleccionada) {
                 setModeloSeleccionado(''); setVersionSeleccionada(null);
                 setFormulario(p => ({ ...p, versionId: '', colorEspecifico: '' }));
             }
-        } else setModelos([]);
+        } else {
+            setModelos([]);
+            setCargandoModelos(false);
+        }
     }, [marcaSeleccionada]);
 
     useEffect(() => {
         if (modeloSeleccionado) {
-            clienteAxios.get(`/versiones/modelo/${modeloSeleccionado}`).then(r => setVersiones(r.data)).catch(console.error);
+            setCargandoVersiones(true);
+            clienteAxios.get(`/versiones/modelo/${modeloSeleccionado}`)
+                .then(r => setVersiones(r.data))
+                .catch(console.error)
+                .finally(() => setCargandoVersiones(false));
+
             if (!vehiculo || vehiculo.version?.modelo?.id?.toString() !== modeloSeleccionado) {
                 setVersionSeleccionada(null);
                 setFormulario(p => ({ ...p, versionId: '', colorEspecifico: '' }));
             }
-        } else setVersiones([]);
+        } else {
+            setVersiones([]);
+            setCargandoVersiones(false);
+        }
     }, [modeloSeleccionado]);
 
     const handleVersionChange = (val) => {
@@ -111,6 +129,9 @@ export default function ModalVehiculo({ abierto, setAbierto, vehiculo, agencias,
         } finally { setGuardando(false); }
     };
 
+    const flujoIncompleto = (marcaSeleccionada && !cargandoModelos && modelos.length === 0) ||
+                            (modeloSeleccionado && !cargandoVersiones && versiones.length === 0);
+
     return (
         <Dialog open={abierto} onOpenChange={setAbierto}>
             <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
@@ -143,6 +164,12 @@ export default function ModalVehiculo({ abierto, setAbierto, vehiculo, agencias,
                             </Select>
                         </div>
                     </div>
+
+                    {flujoIncompleto && (
+                        <div className="p-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-md">
+                            El flujo para esta marca está incompleto. Debe completarlo (agregar modelos o versiones) para poder registrar este vehículo.
+                        </div>
+                    )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-4">
