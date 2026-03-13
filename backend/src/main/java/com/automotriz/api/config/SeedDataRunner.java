@@ -64,6 +64,8 @@ public class SeedDataRunner implements CommandLineRunner {
         corollaLe.setPrecioAlquilerBaseUsd(new BigDecimal("45"));
         corollaLe.setPrecioAlquilerBaseVes(new BigDecimal("1992"));
         corollaLe.setModelo(corolla);
+        // TODO: Añadir imagen principal de la versión (ej. cargar archivo en "/uploads/versiones/corolla_le.webp")
+        // corollaLe.setImagenDefecto("/uploads/versiones/corolla_le.webp");
         versionRepository.save(corollaLe);
 
         Version mustangGt = new Version();
@@ -77,6 +79,8 @@ public class SeedDataRunner implements CommandLineRunner {
         mustangGt.setPrecioAlquilerBaseUsd(new BigDecimal("120"));
         mustangGt.setPrecioAlquilerBaseVes(new BigDecimal("5312"));
         mustangGt.setModelo(mustang);
+        // TODO: Añadir imagen principal de la versión (ej. cargar archivo en "/uploads/versiones/mustang_gt.webp")
+        // mustangGt.setImagenDefecto("/uploads/versiones/mustang_gt.webp");
         versionRepository.save(mustangGt);
 
         Agencia agencia = new Agencia();

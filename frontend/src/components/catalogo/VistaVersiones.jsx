@@ -29,16 +29,6 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
     const [colorInput, setColorInput] = useState('');
     const [coloresLista, setColoresLista] = useState([]);
 
-    // Estados para el motor (Desplegable vs Texto Libre)
-    const [motorPersonalizado, setMotorPersonalizado] = useState(false);
-    const opcionesMotor = ["Gasolina", "Diésel", "Eléctrico", "Híbrido (HEV)", "Híbrido Enchufable (PHEV)", "Gas (GNC/GLP)", "Hidrógeno"];
-    const motorSinCilindrada = ['Eléctrico', 'Hidrógeno'].includes(formulario?.motor);
-
-    const [tasaCambio, setTasaCambio] = useState(442.7);
-    const [autoVenta, setAutoVenta] = useState(true);
-    const [autoAlquiler, setAutoAlquiler] = useState(true);
-    const memoriaVes = useRef({ venta: '', alquiler: '' });
-
     // Estado del formulario (Ahora motor vuelve a ser un solo campo)
     const estadoInicial = {
         titulo: '', 
@@ -53,6 +43,16 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
         modeloId: modeloSeleccionado.id
     };
     const [formulario, setFormulario] = useState(estadoInicial);
+
+    // Estados para el motor (Desplegable vs Texto Libre)
+    const [motorPersonalizado, setMotorPersonalizado] = useState(false);
+    const opcionesMotor = ["Gasolina", "Diésel", "Eléctrico", "Híbrido (HEV)", "Híbrido Enchufable (PHEV)", "Gas (GNC/GLP)", "Hidrógeno"];
+    const motorSinCilindrada = ['Eléctrico', 'Hidrógeno'].includes(formulario?.motor);
+
+    const [tasaCambio, setTasaCambio] = useState(442.7);
+    const [autoVenta, setAutoVenta] = useState(true);
+    const [autoAlquiler, setAutoAlquiler] = useState(true);
+    const memoriaVes = useRef({ venta: '', alquiler: '' });
 
     useEffect(() => {
         const fetchVersiones = async () => {
