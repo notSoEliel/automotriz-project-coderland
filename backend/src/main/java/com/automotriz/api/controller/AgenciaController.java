@@ -28,6 +28,14 @@ public class AgenciaController {
         return agenciaRepository.findAll();
     }
 
+    // Endpoint para obtener una agencia por su ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Agencia> obtenerPorId(@PathVariable Long id) {
+        return agenciaRepository.findById(id)
+                .map(agencia -> new ResponseEntity<>(agencia, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
     // Endpoint para crear una nueva agencia
     @PostMapping
     public ResponseEntity<Agencia> crearAgencia(@Valid @RequestBody AgenciaDTO agenciaDTO) {

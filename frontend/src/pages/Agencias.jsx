@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import clienteAxios from '@/api/clienteAxios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,9 +19,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Building2, Plus, Search, CheckCircle2, Pencil, Trash2 } from 'lucide-react';
+import { Building2, Plus, Search, CheckCircle2, Pencil, Trash2, Eye } from 'lucide-react';
 
 export default function Agencias() {
+    const navigate = useNavigate();
     const [agencias, setAgencias] = useState([]);
     const [cargando, setCargando] = useState(true);
     const [refreshKey, setRefreshKey] = useState(0);
@@ -218,11 +220,11 @@ export default function Agencias() {
                 <Table>
                     <TableHeader className="bg-zinc-50">
                         <TableRow>
-                            <TableHead className="font-semibold text-zinc-950">Nombre</TableHead>
+                            <TableHead className="sticky left-0 z-20 bg-zinc-50 font-semibold text-zinc-950 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.08)]">Nombre</TableHead>
                             <TableHead className="font-semibold text-zinc-950">Dirección</TableHead>
                             <TableHead className="font-semibold text-zinc-950">Métodos de Pago</TableHead>
                             <TableHead className="font-semibold text-zinc-950 text-center">Estado</TableHead>
-                            <TableHead className="font-semibold text-zinc-950 text-right">Acciones</TableHead>
+                            <TableHead className="sticky right-0 z-20 bg-zinc-50 font-semibold text-zinc-950 text-right shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.08)]">Acciones</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -240,8 +242,8 @@ export default function Agencias() {
                             </TableRow>
                         ) : (
                             agencias.map((agencia) => (
-                                <TableRow key={agencia.id}>
-                                    <TableCell className="font-medium text-zinc-900">{agencia.nombre}</TableCell>
+                                <TableRow key={agencia.id} className="cursor-pointer hover:bg-zinc-50 transition-colors group" onClick={() => navigate(`/agencias/${agencia.id}`)}>
+                                    <TableCell className="sticky left-0 z-10 bg-white font-medium text-zinc-900 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] group-hover:bg-zinc-50 transition-colors">{agencia.nombre}</TableCell>
                                     <TableCell className="text-zinc-500">{agencia.ubicacion}</TableCell>
                                     <TableCell>
                                         <div className="flex flex-wrap gap-1">
@@ -258,13 +260,22 @@ export default function Agencias() {
                                             Operativa
                                         </span>
                                     </TableCell>
-                                    <TableCell className="text-right">
-                                        <div className="flex justify-end gap-2">
+                                    <TableCell className="sticky right-0 z-10 bg-white text-right shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.06)] group-hover:bg-zinc-50 transition-colors">
+                                        <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                                            <Button 
+                                                variant="ghost" 
+                                                size="icon" 
+                                                onClick={() => navigate(`/agencias/${agencia.id}`)}
+                                                className="text-zinc-500 hover:text-emerald-600 hover:bg-emerald-50"
+                                                title="Ver detalle"
+                                            >
+                                                <Eye size={16} />
+                                            </Button>
                                             <Button 
                                                 variant="ghost" 
                                                 size="icon" 
                                                 onClick={() => abrirModalEditar(agencia)}
-                                                className="text-zinc-500 hover:text-emerald-600 hover:bg-emerald-50"
+                                                className="text-zinc-500 hover:text-blue-600 hover:bg-blue-50"
                                             >
                                                 <Pencil size={16} />
                                             </Button>

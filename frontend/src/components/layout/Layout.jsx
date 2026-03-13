@@ -1,11 +1,13 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, CarFront, Building2, Users, Settings, LogOut, Menu } from 'lucide-react';
+import { LayoutDashboard, CarFront, Building2, Users, Settings, LogOut } from 'lucide-react';
+import logoWhite from '@/assets/logo-coderland-auto-white.png';
 import {
     SidebarProvider,
     Sidebar,
     SidebarContent,
     SidebarGroup,
     SidebarGroupContent,
+    SidebarHeader,
     SidebarMenu,
     SidebarMenuItem,
     SidebarMenuButton,
@@ -34,10 +36,18 @@ export default function Layout() {
 
                 {/* Menú Lateral Oficial de shadcn */}
                 <Sidebar variant="sidebar" className="bg-zinc-950 border-r-zinc-800">
-                    <SidebarContent className="bg-zinc-950 text-zinc-400">
-                        <div className="h-16 flex items-center px-6 border-b border-zinc-800">
-                            <span className="text-zinc-50 font-semibold text-lg tracking-tight">Coderland Auto</span>
+                    <SidebarHeader className="bg-zinc-950 border-b border-zinc-900 p-0 overflow-hidden">
+                        <div className="h-16 flex items-center justify-center px-4">
+                            <img
+                                src={logoWhite}
+                                alt="Coderland Auto"
+                                className="h-9 w-auto object-contain select-none"
+                                draggable={false}
+                            />
                         </div>
+                    </SidebarHeader>
+
+                    <SidebarContent className="bg-zinc-950 text-zinc-400">
 
                         <SidebarGroup>
                             <SidebarGroupContent>

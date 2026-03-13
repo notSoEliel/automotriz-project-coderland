@@ -19,4 +19,6 @@ public interface VehiculoRepository extends JpaRepository<Vehiculo, Long> {
     List<Vehiculo> findByFiltros(@Param("agenciaId") Long agenciaId,
                                  @Param("estado") EstadoVehiculo estado,
                                  @Param("marcaId") Long marcaId);
+
+    long countByEstado(EstadoVehiculo estado);
 }

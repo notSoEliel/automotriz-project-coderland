@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import logoPrincipal from '@/assets/logo-coderland-auto-1.png';
 import { useNavigate } from 'react-router-dom';
 import clienteAxios from '@/api/clienteAxios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff } from 'lucide-react'; // Importamos los íconos de shadcn
 
@@ -31,11 +32,19 @@ export default function Login() {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-zinc-50">
-            <Card className="w-100">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-50 gap-6 px-4">
+            {/* Logo sobre el formulario */}
+            <img
+                src={logoPrincipal}
+                alt="Coderland Auto"
+                className="w-full max-w-[200px] object-contain select-none"
+                draggable={false}
+            />
+            <Card className="w-full max-w-sm">
                 <CardHeader>
-                    <CardTitle className="text-2xl">Coderland Auto</CardTitle>
-                    <CardDescription>Ingresa tus credenciales para administrar el inventario.</CardDescription>
+                    <CardDescription className="text-center text-sm">
+                        Ingresa tus credenciales para administrar el inventario.
+                    </CardDescription>
                 </CardHeader>
                 <form onSubmit={handleSubmit}>
                     <CardContent className="space-y-4 pb-4">

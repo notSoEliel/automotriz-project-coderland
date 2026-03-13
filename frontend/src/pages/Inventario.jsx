@@ -21,7 +21,7 @@ export default function Inventario() {
     const [vehiculos, setVehiculos] = useState([]);
     const [agencias, setAgencias] = useState([]);
     const [cargando, setCargando] = useState(true);
-    const [vista, setVista] = useState('tabla');
+    const [vista, setVista] = useState('galeria');
     const [refreshKey, setRefreshKey] = useState(0);
 
     const [filtroPlaca, setFiltroPlaca] = useState('');
