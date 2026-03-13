@@ -13,8 +13,8 @@ import java.time.LocalDate;
 @Data
 public class VehiculoDTO {
 
-    @NotBlank(message = "El VIN es obligatorio")
-    private String vin;
+    @NotBlank(message = "La placa es obligatoria")
+    private String placa;
 
     @NotBlank(message = "El color específico es obligatorio")
     private String colorEspecifico;

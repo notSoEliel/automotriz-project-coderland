@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "vehiculos")
@@ -20,7 +21,7 @@ public class Vehiculo {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String vin;
+    private String placa;
 
     @Column(name = "color_especifico", nullable = false)
     private String colorEspecifico;
@@ -55,6 +56,9 @@ public class Vehiculo {
     @ManyToOne
     @JoinColumn(name = "agencia_id", nullable = false)
     private Agencia agencia;
+
+    @OneToMany(mappedBy = "vehiculo", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VehiculoMultimedia> galerias;
 
     public enum EstadoVehiculo {
         DISPONIBLE, RESERVADO, VENDIDO, ALQUILADO
