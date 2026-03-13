@@ -468,10 +468,10 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
                             onClick={() => entrarADetalleVersion(version)}
                             className="relative group overflow-hidden border-zinc-200 hover:border-emerald-500 hover:shadow-md transition-all cursor-pointer"
                         >
-                            <div className="absolute top-2 right-2 z-10">
+                            <div className="absolute top-2 right-2 z-30">
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-400 hover:text-zinc-900 bg-white/80 backdrop-blur-sm">
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-400 hover:text-zinc-900 bg-white/80 backdrop-blur-sm shadow-sm border border-zinc-100/50">
                                             <MoreVertical size={16} />
                                         </Button>
                                     </DropdownMenuTrigger>
@@ -490,23 +490,21 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
                                     <img 
                                         src={`http://localhost:8080${version.imagenDefecto.startsWith('/') ? '' : '/'}${version.imagenDefecto}`} 
                                         alt="Coche" 
-                                        className="w-full h-full object-contain p-2 group-hover:scale-110 transition-transform duration-500" 
+                                        className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-500" 
                                     />
                                 ) : (
                                     <ImageIcon size={32} className="text-zinc-300" />
                                 )}
                                 
                                 {/* Precio Label */}
-                                <div className="absolute bottom-2 left-2 bg-zinc-900/80 text-white text-[10px] font-bold px-2 py-1 rounded-md backdrop-blur-sm z-20">
+                                <div className="absolute bottom-2 left-2 bg-zinc-900/80 text-white text-[10px] font-bold px-2 py-1 rounded-md backdrop-blur-sm z-20 group-hover:opacity-0 transition-opacity">
                                     ${parseFloat(version.precioVentaBaseUsd).toLocaleString()}
                                 </div>
 
-                                {/* Overlay Informativo (UX) */}
-                                <div className="absolute inset-0 bg-emerald-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10 backdrop-blur-[1px]">
-                                    <div className="bg-white/95 text-emerald-700 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider shadow-xl flex items-center gap-2 translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                                        <ExternalLink size={14} />
-                                        Ver Ficha Completa
-                                    </div>
+                                {/* Banner Informativo (UX Mejorado) */}
+                                <div className="absolute bottom-0 left-0 right-0 bg-emerald-600 text-white py-2 flex items-center justify-center gap-2 translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-20 shadow-[0_-4px_10px_rgba(0,0,0,0.1)]">
+                                    <ExternalLink size={12} className="text-emerald-100" />
+                                    <span className="text-[10px] font-bold uppercase tracking-widest">Ver Ficha Completa</span>
                                 </div>
                             </div>
                             <CardContent className="p-4 bg-white">
