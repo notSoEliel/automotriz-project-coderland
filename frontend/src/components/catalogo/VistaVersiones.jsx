@@ -315,10 +315,10 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
                                             type="number" 
                                             min="0"
                                             onKeyDown={(e) => bloquearTeclasInvalidas(e, false)} // false = bloquea el punto (solo enteros)
-                                            value={motorSinCilindrada ? '' : formulario.cilindrada} 
+                                            value={motorSinCilindrada ? '' : (formulario.cilindrada || '')} 
                                             onChange={handleInputChange} 
-                                            placeholder="Ej. 1987" 
-                                            className="pr-8" 
+                                            placeholder={motorSinCilindrada ? 'N/A' : 'Ej. 1987'} 
+                                            className={`pr-8 ${motorSinCilindrada ? 'bg-zinc-100 text-zinc-400 cursor-not-allowed italic' : 'bg-white'}`} 
                                             disabled={motorSinCilindrada}
                                         />
                                         <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium ${motorSinCilindrada ? 'text-zinc-300' : 'text-zinc-500'}`}>cc</span>
@@ -526,8 +526,13 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
                                 )}
                                 
                                 {/* Precio Label */}
-                                <div className="absolute bottom-2 left-2 bg-zinc-900/80 text-white text-[10px] font-bold px-2 py-1 rounded-md backdrop-blur-sm z-20 group-hover:opacity-0 transition-opacity">
-                                    ${parseFloat(version.precioVentaBaseUsd).toLocaleString()}
+                                <div className="absolute bottom-2 left-2 flex flex-col items-start gap-1 z-20 group-hover:opacity-0 transition-opacity">
+                                    <div className="bg-zinc-900/80 text-white text-[10px] font-bold px-2 py-1 rounded-md backdrop-blur-sm">
+                                        ${parseFloat(version.precioVentaBaseUsd).toLocaleString()} <span className="text-[8px] font-normal opacity-70">USD</span>
+                                    </div>
+                                    <div className="bg-emerald-600/90 text-white text-[9px] font-bold px-2 py-0.5 rounded-md backdrop-blur-sm border border-emerald-400/30">
+                                        Bs. {(parseFloat(version.precioVentaBaseUsd) * 442.7).toLocaleString()}
+                                    </div>
                                 </div>
 
                                 {/* Banner Informativo (UX Mejorado) */}

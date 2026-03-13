@@ -212,14 +212,16 @@ export default function DetalleVehiculo({ vehiculo, onVolver, onEditar }) {
                             </h2>
                             <div className="grid grid-cols-2 gap-3 text-sm">
                                 <div className="bg-zinc-50 rounded-md p-3">
-                                    <p className="text-xs text-zinc-400 uppercase mb-1">Venta USD</p>
-                                    <p className="font-semibold text-zinc-900">{precioVentaUsd ? `$${Number(precioVentaUsd).toLocaleString()}` : '—'}</p>
-                                    {!vehiculo.precioVentaEspecificoUsd && vehiculo.version?.precioVentaBaseUsd && <p className="text-[10px] text-emerald-600 mt-0.5">Precio sugerido</p>}
+                                    <p className="text-xs text-zinc-400 uppercase mb-1">Venta</p>
+                                    <p className="font-semibold text-zinc-900">{precioVentaUsd ? `$${Number(precioVentaUsd).toLocaleString()}` : '—'} <span className="text-zinc-400">USD</span></p>
+                                    {precioVentaUsd && <p className="text-[10px] text-zinc-500 mt-1 font-medium">≈ Bs. {(Number(precioVentaUsd) * 442.7).toLocaleString()}</p>}
+                                    {!vehiculo.precioVentaEspecificoUsd && vehiculo.version?.precioVentaBaseUsd && <p className="text-[10px] text-emerald-600 mt-0.5 italic">Sugerido</p>}
                                 </div>
                                 <div className="bg-zinc-50 rounded-md p-3">
-                                    <p className="text-xs text-zinc-400 uppercase mb-1">Alquiler USD</p>
-                                    <p className="font-semibold text-zinc-900">{precioAlquilerUsd ? `$${Number(precioAlquilerUsd).toLocaleString()}` : '—'}</p>
-                                    {!vehiculo.precioAlquilerEspecificoUsd && vehiculo.version?.precioAlquilerBaseUsd && <p className="text-[10px] text-emerald-600 mt-0.5">Precio sugerido</p>}
+                                    <p className="text-xs text-zinc-400 uppercase mb-1">Alquiler</p>
+                                    <p className="font-semibold text-zinc-900">{precioAlquilerUsd ? `$${Number(precioAlquilerUsd).toLocaleString()}` : '—'} <span className="text-zinc-400">USD</span></p>
+                                    {precioAlquilerUsd && <p className="text-[10px] text-zinc-500 mt-1 font-medium">≈ Bs. {(Number(precioAlquilerUsd) * 442.7).toLocaleString()}</p>}
+                                    {!vehiculo.precioAlquilerEspecificoUsd && vehiculo.version?.precioAlquilerBaseUsd && <p className="text-[10px] text-emerald-600 mt-0.5 italic">Sugerido</p>}
                                 </div>
                             </div>
                         </CardContent>

@@ -52,10 +52,12 @@ export default function Inventario() {
                 if (filtroEstado !== 'todos') params.append('estado', filtroEstado);
                 params.append('page', currentPage);
                 params.append('size', 10);
-                const [resV, resA, resVersiones] = await Promise.all([
+                const [resV, resA, resVersiones, resMarcas, resModelos] = await Promise.all([
                     clienteAxios.get(`/vehiculos?${params.toString()}`),
                     clienteAxios.get('/agencias'),
-                    clienteAxios.get('/versiones')
+                    clienteAxios.get('/versiones'),
+                    clienteAxios.get('/marcas'),
+                    clienteAxios.get('/modelos')
                 ]);
                 setVehiculos(resV.data.content || []);
                 setTotalPages(resV.data.totalPages || 1);
@@ -63,7 +65,10 @@ export default function Inventario() {
                 
                 const hayVersiones = Array.isArray(resVersiones.data) && resVersiones.data.length > 0;
                 const hayAgencias = Array.isArray(resA.data) && resA.data.length > 0;
-                setFlujoIncompleto(!hayVersiones || !hayAgencias);
+                const hayMarcas = Array.isArray(resMarcas.data) && resMarcas.data.length > 0;
+                const hayModelos = Array.isArray(resModelos.data) && resModelos.data.length > 0;
+                
+                setFlujoIncompleto(!hayMarcas || !hayModelos || !hayVersiones || !hayAgencias);
             } catch (error) {
                 console.error("Error cargando inventario:", error);
             } finally {
@@ -113,7 +118,7 @@ export default function Inventario() {
     const cerrarDetalle = () => { setVehiculoDetalle(null); setRefreshKey(k => k + 1); };
     const abrirModalCrear = () => { 
         if (flujoIncompleto) {
-            showModal("Para registrar un vehículo, necesitas tener creadas al menos una Versión (Marca > Modelo > Versión) y una Agencia.", "Operación Bloqueada");
+            showModal("Para registrar un vehículo, necesitas tener configuradas al menos una Marca, un Modelo, una Versión y una Agencia vinculada.", "Operación Bloqueada");
             return;
         }
         setVehiculoEdicion(null); 
@@ -143,7 +148,11 @@ export default function Inventario() {
                     </h1>
                     <p className="text-sm text-zinc-500 mt-1">Gestiona los vehículos reales en las agencias.</p>
                 </div>
-                <Button onClick={abrirModalCrear} className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2">
+                <Button 
+                    onClick={abrirModalCrear} 
+                    className={`gap-2 ${flujoIncompleto ? 'bg-zinc-400 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700'} text-white`}
+                    title={flujoIncompleto ? "Debe completar el flujo de catálogo primero" : "Registrar nuevo vehículo"}
+                >
                     <Plus size={16} /> Registrar Vehículo
                 </Button>
             </div>
@@ -159,7 +168,7 @@ export default function Inventario() {
                         <div className="ml-3">
                             <h3 className="text-sm font-medium text-amber-800">Flujo Incompleto</h3>
                             <div className="mt-2 text-sm text-amber-700">
-                                <p>Para registrar un vehículo físico, el sistema requiere al menos una <span className="font-semibold">Versión</span> y una <span className="font-semibold">Agencia</span> configuradas en la base de datos.</p>
+                                <p>Para registrar un vehículo físico, el sistema requiere al menos una <span className="font-semibold">Marca</span>, un <span className="font-semibold">Modelo</span>, una <span className="font-semibold">Versión</span> y una <span className="font-semibold">Agencia</span> configuradas en la base de datos.</p>
                             </div>
                         </div>
                     </div>
@@ -269,7 +278,12 @@ export default function Inventario() {
                                     <div className="space-y-2 text-sm">
                                         <div className="flex items-center text-zinc-600 bg-zinc-50 p-1.5 rounded"><Tag size={12} className="mr-1.5 shrink-0" /><span className="font-mono text-xs">{v.placa}</span></div>
                                         <div className="flex items-center text-zinc-600"><MapPin size={14} className="text-zinc-400 mr-1.5 shrink-0" />{v.agencia?.nombre}</div>
-                                        <div className="flex items-center text-zinc-600"><div className="w-3 h-3 rounded-full border border-zinc-300 mr-1.5 shrink-0" style={{ backgroundColor: v.colorEspecifico?.toLowerCase() }} /><span className="capitalize">{v.colorEspecifico}</span></div>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center text-zinc-600"><div className="w-3 h-3 rounded-full border border-zinc-300 mr-1.5 shrink-0" style={{ backgroundColor: v.colorEspecifico?.toLowerCase() }} /><span className="capitalize">{v.colorEspecifico}</span></div>
+                                            <div className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">
+                                                Bs. {((v.precioVentaEspecificoUsd || v.version?.precioVentaBaseUsd || 0) * 442.7).toLocaleString()}
+                                            </div>
+                                        </div>
                                     </div>
                                     <div className="flex gap-2 mt-4 pt-3 border-t border-zinc-100">
                                         <Button size="sm" variant="outline" className="flex-1 h-8 text-xs" onClick={e => { e.stopPropagation(); abrirDetalle(v); }}><Eye size={12} className="mr-1" /> Ver</Button>

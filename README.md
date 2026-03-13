@@ -75,9 +75,38 @@ Una vez desplegada la aplicación, puede acceder mediante las siguientes rutas y
   - **Usuario**: `admin`
   - **Contraseña**: `coderland2026`
 
-### Acceso a la Base de Datos
+## Base de Datos y Configuración Inicial
 
-El puerto `5432` está enlazado directamente a su entorno local (Host). Puede explorar visualmente la base de datos `automotriz_db` ingresando mediante utilidades como DBeaver o pgAdmin, utilizando las siguientes credenciales:
+El sistema utiliza PostgreSQL como motor de persistencia relacional, orquestado mediante Docker para garantizar un entorno estandarizado.
+
+### Mecanismo de Inicialización de Datos (Data Seeding)
+
+El proyecto implementa un componente de ejecución programática denominado `SeedDataRunner`, basado en la interfaz `CommandLineRunner` de Spring Boot. Este mecanismo se encarga de la población inicial de la base de datos de manera automatizada al iniciar la aplicación.
+
+El proceso es estrictamente idempotente: la lógica de inserción solo se ejecuta si las entidades fundamentales (Marcas, Modelos, Versiones y Agencias) se encuentran vacías. Se ha priorizado este enfoque sobre la ejecución de scripts SQL estáticos para asegurar la integridad referencial y mantener una compatibilidad absoluta con el modelo de objetos gestionado por JPA.
+
+### Persistencia y Gestión de Volúmenes
+
+El almacenamiento de los datos reside en un volumen gestionado por Docker denominado `postgres_data`, definido en el archivo `docker-compose.yml`. Esta configuración asegura que la información persista incluso si los contenedores son reiniciados o eliminados.
+
+En caso de requerir una inicialización desde cero del sistema, se debe proceder con la eliminación de dicho volumen mediante el comando:
+
+```bash
+docker-compose down -v
+```
+
+### Estructura y Flujo de Dependencias (Integridad Referencial)
+
+Para garantizar la coherencia de los datos, el sistema implementa una jerarquía de dependencias con el siguiente orden de precedencia técnica:
+
+1. **Nivel 1 (Entidades Raíz)**: Marcas y Agencias. La entidad Agencia centraliza la gestión de ubicaciones y medios de pago.
+2. **Nivel 2 (Modelos)**: Dependen directamente de la existencia de una Marca.
+3. **Nivel 3 (Versiones)**: Especificaciones técnicas y de precio vinculadas a un Modelo.
+4. **Nivel 4 (Vehículos)**: Entidad final del inventario que consolida una Versión específica con una Agencia de distribución física.
+
+### Conexión Externa a la Base de Datos
+
+El puerto `5432` está enlazado al host local, permitiendo la conexión mediante herramientas como DBeaver o pgAdmin con los siguientes parámetros:
 
 - **Host**: `localhost` (Puerto: `5432`)
 - **Usuario**: `user_admin`
