@@ -16,6 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -41,14 +44,19 @@ public class VehiculoController {
     }
 
     @GetMapping
-    public List<Vehiculo> obtenerTodos(
+    public Page<Vehiculo> obtenerTodos(
             @RequestParam(required = false) Long agenciaId,
             @RequestParam(required = false) Vehiculo.EstadoVehiculo estado,
-            @RequestParam(required = false) Long marcaId) {
+            @RequestParam(required = false) Long marcaId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        Pageable pageable = PageRequest.of(page, size);
+        
         if (agenciaId != null || estado != null || marcaId != null) {
-            return vehiculoRepository.findByFiltros(agenciaId, estado, marcaId);
+            return vehiculoRepository.findByFiltros(agenciaId, estado, marcaId, pageable);
         }
-        return vehiculoRepository.findAll();
+        return vehiculoRepository.findAll(pageable);
     }
 
     @GetMapping("/generar-placa")

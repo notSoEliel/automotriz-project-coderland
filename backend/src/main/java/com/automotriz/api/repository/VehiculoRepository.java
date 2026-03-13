@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @Repository
@@ -16,9 +18,10 @@ public interface VehiculoRepository extends JpaRepository<Vehiculo, Long> {
            "(:agenciaId IS NULL OR v.agencia.id = :agenciaId) AND " +
            "(:estado IS NULL OR v.estado = :estado) AND " +
            "(:marcaId IS NULL OR v.version.modelo.marca.id = :marcaId)")
-    List<Vehiculo> findByFiltros(@Param("agenciaId") Long agenciaId,
+    Page<Vehiculo> findByFiltros(@Param("agenciaId") Long agenciaId,
                                  @Param("estado") EstadoVehiculo estado,
-                                 @Param("marcaId") Long marcaId);
+                                 @Param("marcaId") Long marcaId,
+                                 Pageable pageable);
 
     long countByEstado(EstadoVehiculo estado);
 }

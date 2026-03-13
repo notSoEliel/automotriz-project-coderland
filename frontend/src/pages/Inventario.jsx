@@ -28,6 +28,9 @@ export default function Inventario() {
     const [filtroAgencia, setFiltroAgencia] = useState('todas');
     const [filtroEstado, setFiltroEstado] = useState('todos');
 
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(1);
+
     const [modalAbierto, setModalAbierto] = useState(false);
     const [vehiculoEdicion, setVehiculoEdicion] = useState(null);
     const [vehiculoDetalle, setVehiculoDetalle] = useState(null);
@@ -41,11 +44,14 @@ export default function Inventario() {
                 const params = new URLSearchParams();
                 if (filtroAgencia !== 'todas') params.append('agenciaId', filtroAgencia);
                 if (filtroEstado !== 'todos') params.append('estado', filtroEstado);
+                params.append('page', currentPage);
+                params.append('size', 10);
                 const [resV, resA] = await Promise.all([
                     clienteAxios.get(`/vehiculos?${params.toString()}`),
                     clienteAxios.get('/agencias')
                 ]);
-                setVehiculos(resV.data);
+                setVehiculos(resV.data.content || []);
+                setTotalPages(resV.data.totalPages || 1);
                 setAgencias(resA.data);
             } catch (error) {
                 console.error("Error cargando inventario:", error);
@@ -54,7 +60,7 @@ export default function Inventario() {
             }
         };
         fetchDatos();
-    }, [refreshKey, filtroAgencia, filtroEstado]);
+    }, [refreshKey, filtroAgencia, filtroEstado, currentPage]);
 
     const vehiculosFiltrados = vehiculos.filter(v =>
         (v.placa || '').toLowerCase().includes(filtroPlaca.toLowerCase())
@@ -236,6 +242,31 @@ export default function Inventario() {
                             </Card>
                         );
                     })}
+                </div>
+            )}
+
+            {/* Controles de Paginación */}
+            {!cargando && vehiculosFiltrados.length > 0 && (
+                <div className="flex items-center justify-center gap-4 mt-8 bg-white p-3 rounded-lg border border-zinc-200 w-fit mx-auto">
+                    <Button 
+                        variant="outline" 
+                        onClick={() => setCurrentPage(p => Math.max(0, p - 1))} 
+                        disabled={currentPage === 0}
+                        className="border border-zinc-200 text-zinc-700 hover:bg-zinc-100 disabled:opacity-50"
+                    >
+                        Anterior
+                    </Button>
+                    <span className="text-sm text-zinc-600 font-medium">
+                        Página {currentPage + 1} de {totalPages}
+                    </span>
+                    <Button 
+                        variant="outline" 
+                        onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))} 
+                        disabled={currentPage >= totalPages - 1}
+                        className="border border-zinc-200 text-zinc-700 hover:bg-zinc-100 disabled:opacity-50"
+                    >
+                        Siguiente
+                    </Button>
                 </div>
             )}
 
