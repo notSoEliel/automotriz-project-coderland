@@ -129,28 +129,28 @@ export default function Inventario() {
             <SubNavCatalogo />
 
             {/* Filtros */}
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-zinc-50 p-4 rounded-lg border border-zinc-200">
-                <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-                    <div className="relative w-full md:w-64">
+            <div className="flex flex-wrap gap-4 items-center justify-between bg-zinc-50 p-4 rounded-lg border border-zinc-200">
+                <div className="flex flex-wrap gap-2 flex-grow">
+                    <div className="relative w-full sm:w-auto sm:min-w-[180px] flex-grow">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" />
-                        <Input placeholder="Buscar por placa..." value={filtroPlaca} onChange={e => setFiltroPlaca(e.target.value)} className="pl-9 bg-white uppercase" />
+                        <Input placeholder="Buscar por placa..." value={filtroPlaca} onChange={e => setFiltroPlaca(e.target.value)} className="pl-9 bg-white uppercase w-full" />
                     </div>
                     <Select value={filtroAgencia} onValueChange={setFiltroAgencia}>
-                        <SelectTrigger className="w-full md:w-[200px] bg-white"><SelectValue placeholder="Agencia" /></SelectTrigger>
+                        <SelectTrigger className="w-full sm:w-auto sm:min-w-[180px] bg-white flex-grow"><SelectValue placeholder="Agencia" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="todas">Todas las Agencias</SelectItem>
                             {agencias.map(a => <SelectItem key={a.id} value={a.id.toString()}>{a.nombre}</SelectItem>)}
                         </SelectContent>
                     </Select>
                     <Select value={filtroEstado} onValueChange={setFiltroEstado}>
-                        <SelectTrigger className="w-full md:w-[150px] bg-white"><SelectValue placeholder="Estado" /></SelectTrigger>
+                        <SelectTrigger className="w-full sm:w-auto sm:min-w-[180px] bg-white flex-grow"><SelectValue placeholder="Estado" /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="todos">Todos</SelectItem>
                             {estadosVehiculo.map(e => <SelectItem key={e} value={e}>{e.charAt(0) + e.slice(1).toLowerCase()}</SelectItem>)}
                         </SelectContent>
                     </Select>
                 </div>
-                <div className="flex items-center gap-2 bg-white rounded-md border border-zinc-200 p-1">
+                <div className="flex items-center gap-2 bg-white rounded-md border border-zinc-200 p-1 ml-auto">
                     <Button variant={vista === 'tabla' ? 'secondary' : 'ghost'} size="sm" onClick={() => setVista('tabla')} className={`px-3 ${vista === 'tabla' ? 'bg-zinc-100' : ''}`}>
                         <List size={16} className="mr-2" /> Tabla
                     </Button>
@@ -247,7 +247,7 @@ export default function Inventario() {
 
             {/* Controles de Paginación */}
             {!cargando && vehiculosFiltrados.length > 0 && (
-                <div className="flex items-center justify-center gap-4 mt-8 bg-white p-3 rounded-lg border border-zinc-200 w-fit mx-auto">
+                <div className="flex flex-wrap items-center justify-center gap-4 mt-8 bg-white p-3 rounded-lg border border-zinc-200 w-fit mx-auto">
                     <Button 
                         variant="outline" 
                         onClick={() => setCurrentPage(p => Math.max(0, p - 1))} 

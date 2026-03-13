@@ -220,11 +220,11 @@ export default function Agencias() {
                 <Table>
                     <TableHeader className="bg-zinc-50">
                         <TableRow>
-                            <TableHead className="sticky left-0 z-20 bg-zinc-50 font-semibold text-zinc-950 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.08)]">Nombre</TableHead>
-                            <TableHead className="font-semibold text-zinc-950">Dirección</TableHead>
-                            <TableHead className="font-semibold text-zinc-950">Métodos de Pago</TableHead>
+                            <TableHead className="sticky left-0 z-20 bg-zinc-50 font-semibold text-zinc-950 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.08)] max-w-[120px] sm:max-w-none">Nombre</TableHead>
+                            <TableHead className="font-semibold text-zinc-950 min-w-[200px]">Dirección</TableHead>
+                            <TableHead className="font-semibold text-zinc-950 min-w-[200px]">Métodos de Pago</TableHead>
                             <TableHead className="font-semibold text-zinc-950 text-center">Estado</TableHead>
-                            <TableHead className="sticky right-0 z-20 bg-zinc-50 font-semibold text-zinc-950 text-right shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.08)]">Acciones</TableHead>
+                            <TableHead className="sticky right-0 z-20 bg-zinc-50 font-semibold text-zinc-950 text-right shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.08)] px-2 sm:px-4">Acciones</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -243,7 +243,12 @@ export default function Agencias() {
                         ) : (
                             agencias.map((agencia) => (
                                 <TableRow key={agencia.id} className="cursor-pointer hover:bg-zinc-50 transition-colors group" onClick={() => navigate(`/agencias/${agencia.id}`)}>
-                                    <TableCell className="sticky left-0 z-10 bg-white font-medium text-zinc-900 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] group-hover:bg-zinc-50 transition-colors">{agencia.nombre}</TableCell>
+                                    <TableCell 
+                                        className="sticky left-0 z-10 bg-white font-medium text-zinc-900 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.06)] group-hover:bg-zinc-50 transition-colors max-w-[120px] sm:max-w-none whitespace-normal break-words hyphens-auto align-top sm:align-middle py-3" 
+                                        style={{ wordBreak: 'break-word', hyphens: 'auto' }}
+                                    >
+                                        {agencia.nombre}
+                                    </TableCell>
                                     <TableCell className="text-zinc-500">{agencia.ubicacion}</TableCell>
                                     <TableCell>
                                         <div className="flex flex-wrap gap-1">
@@ -260,13 +265,13 @@ export default function Agencias() {
                                             Operativa
                                         </span>
                                     </TableCell>
-                                    <TableCell className="sticky right-0 z-10 bg-white text-right shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.06)] group-hover:bg-zinc-50 transition-colors">
-                                        <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                                    <TableCell className="sticky right-0 z-10 bg-white shadow-[-2px_0_4px_-2px_rgba(0,0,0,0.06)] group-hover:bg-zinc-50 transition-colors px-2 sm:px-4 align-top sm:align-middle py-3">
+                                        <div className="flex flex-col sm:flex-row items-center sm:justify-end gap-1 sm:gap-2" onClick={(e) => e.stopPropagation()}>
                                             <Button 
                                                 variant="ghost" 
                                                 size="icon" 
-                                                onClick={() => navigate(`/agencias/${agencia.id}`)}
-                                                className="text-zinc-500 hover:text-emerald-600 hover:bg-emerald-50"
+                                                onClick={(e) => { e.stopPropagation(); navigate(`/agencias/${agencia.id}`); }}
+                                                className="text-zinc-500 hover:text-emerald-600 hover:bg-emerald-50 h-8 w-8 sm:h-9 sm:w-9 shrink-0"
                                                 title="Ver detalle"
                                             >
                                                 <Eye size={16} />
@@ -274,16 +279,16 @@ export default function Agencias() {
                                             <Button 
                                                 variant="ghost" 
                                                 size="icon" 
-                                                onClick={() => abrirModalEditar(agencia)}
-                                                className="text-zinc-500 hover:text-blue-600 hover:bg-blue-50"
+                                                onClick={(e) => { e.stopPropagation(); abrirModalEditar(agencia); }}
+                                                className="text-zinc-500 hover:text-blue-600 hover:bg-blue-50 h-8 w-8 sm:h-9 sm:w-9 shrink-0"
                                             >
                                                 <Pencil size={16} />
                                             </Button>
                                             <Button 
                                                 variant="ghost" 
                                                 size="icon" 
-                                                onClick={() => eliminarAgencia(agencia.id)}
-                                                className="text-zinc-500 hover:text-red-600 hover:bg-red-50"
+                                                onClick={(e) => { e.stopPropagation(); eliminarAgencia(agencia.id); }}
+                                                className="text-zinc-500 hover:text-red-600 hover:bg-red-50 h-8 w-8 sm:h-9 sm:w-9 shrink-0"
                                             >
                                                 <Trash2 size={16} />
                                             </Button>

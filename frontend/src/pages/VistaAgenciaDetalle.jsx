@@ -40,7 +40,7 @@ export default function VistaAgenciaDetalle() {
                     clienteAxios.get(`/vehiculos?agenciaId=${id}`)
                 ]);
                 setAgencia(resAgencia.data);
-                setVehiculos(resVehiculos.data);
+                setVehiculos(resVehiculos.data.content || resVehiculos.data || []);
             } catch (err) {
                 console.error('Error cargando detalle de agencia:', err);
             } finally {
