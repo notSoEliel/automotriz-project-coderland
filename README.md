@@ -13,6 +13,14 @@
 
 ---
 
+## Prerrequisitos
+
+Para ejecutar este proyecto de forma fluida, su sistema debe contar con las siguientes herramientas instaladas:
+
+- **Docker**: Motor de contenedores (Docker Desktop recomendado en Mac y Windows).
+- **Docker Compose**: Orquestador de contenedores (incluido standard en Docker Desktop).
+- **Git**: Sistema de control de versiones para clonar el repositorio.
+
 ## Propósito de la Prueba Técnica
 
 Este proyecto conforma la resolución metodológica para la prueba técnica avanzada solicitada por **Coderland**. El sistema, titulado `Coderland Auto`, modela un caso de uso ficticio enfocado en satisfacer los rigurosos estándares de una gestión de inventario automotriz empresarial. 
@@ -58,16 +66,50 @@ A continuación se detalla técnicamente la resolución de las áreas solicitada
 - **Validaciones**: Se implementó una gestión de errores transversal a través de `@ControllerAdvice`, centralizando la captura de excepciones (como la violación de constraints de base de datos). Estos errores se propagan como instrucciones estructuradas bajo los códigos HTTP 400 y 409, los cuales son posteriormente capturados por el Frontend y presentados informativamente en los inputs o modales correspondientes.
 - **UX/UI en Frontend**: La plataforma opera como una Single Page Application (SPA) responsiva con un diseño basado en la paleta de colores Zinc y Emerald. Incorpora transiciones de estado en la navegación y prevé vistas exclusivas en el esquema de ruteo para aislar los errores críticos u omisiones de permisos (404, 403 y 500).
 
+## Accesos y Credenciales
+
+Una vez desplegada la aplicación, puede acceder mediante las siguientes rutas y credenciales preconfiguradas en el Seed de base de datos:
+
+- **Frontend URL (Interfaz de Usuario)**: [http://localhost:5173](http://localhost:5173)
+- **Credenciales de Administrador**:
+  - **Usuario**: `admin`
+  - **Contraseña**: `coderland2026`
+
+### Acceso a la Base de Datos
+
+El puerto `5432` está enlazado directamente a su entorno local (Host). Puede explorar visualmente la base de datos `automotriz_db` ingresando mediante utilidades como DBeaver o pgAdmin, utilizando las siguientes credenciales:
+
+- **Host**: `localhost` (Puerto: `5432`)
+- **Usuario**: `user_admin`
+- **Contraseña**: `secret_password`
+- **Base de Datos**: `automotriz_db`
+
 ## Instrucciones de Despliegue (Docker)
 
 La infraestructura local (Persistencia de PostgreSQL, Servomotor de API y renderizado del cliente) ha sido íntegramente contenedorizada. Se aprovisionaron redes internas para gobernar el enrutamiento restringido y volúmenes permanentes para blindar las migraciones de bases de datos (`postgres_data`) y los assets de imágenes (`/uploads`).
 
-El ecosistema entero se levanta de manera silenciosa invocando una única orquestación de CLI:
+El ecosistema entero se levanta de manera silenciosa invocando una orquestación de CLI. A continuación los pasos de ejecución correcta según el sistema operativo:
+
+### Mac y Windows
+
+1. Asegúrese de tener **Docker Desktop** abierto y ejecutándose en segundo plano.
+2. Abra su terminal (Terminal principal en Mac; PowerShell o Git Bash en Windows) y ejecute:
 
 ```bash
 git clone https://github.com/notSoEliel/automotriz-project-coderland.git
 cd automotriz-project-coderland
 docker-compose up -d
+```
+
+### Linux
+
+1. Asegúrese de que el servicio de Docker esté activo ejecutando `sudo systemctl start docker`.
+2. Dependiendo de la configuración de su entorno, es probable que requiera privilegios elevados (sudo) para orquestar los contenedores:
+
+```bash
+git clone https://github.com/notSoEliel/automotriz-project-coderland.git
+cd automotriz-project-coderland
+sudo docker-compose up -d
 ```
 
 ## Exploración de la API Interactiva
@@ -96,6 +138,15 @@ La arquitectura en React opera como una Single Page Application, fraccionando la
 | **Agencias** | Módulo de gestión y visualización de sedes o puntos de venta vinculados a la red automotriz. |
 | **Inventario** | Núcleo grueso del proyecto. Interfaz robusta que orquesta los filtros al servidor, manipula paginación algorítmica externa, y abstrae el control de imágenes y galerías WebP. |
 | **Error Views** | Vistas de contingencia estilizadas (404, 403, 500) que capturan estados de navegación inválidos o fallos críticos, manteniendo la integridad de la experiencia de usuario. |
+
+### Flujo de Uso Correcto (Inventario)
+
+Debido a la estricta integridad relacional de la base de datos, para **añadir un Vehículo Físico** correctamente, se deben seguir estos pasos secuenciales en la plataforma:
+
+1. **Crear una Marca**: Ingrese al apartado Catálogo y añada al menos una marca automotriz.
+2. **Crear un Modelo**: Ingrese a la marca y añada un modelo asociado a la misma.
+3. **Añadir una Versión**: Detalle técnica y visualmente la versión del vehículo enlazada a ese modelo (aquí se configuran los precios base sugeridos, fotografías multimedia y cilindrada si el motor seleccionado lo requiere).
+4. **Registrar el Vehículo Físico**: Finalmente, tras haber forjado la fundación, diríjase a la sección de **Inventario**, donde podrá registrar una matrícula o placa real a la versión previamente creada, además de asignarle la agencia de distribución correspondiente.
 
 ## Aseguramiento de Calidad (Testing Suite)
 
