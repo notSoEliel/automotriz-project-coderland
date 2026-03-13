@@ -71,15 +71,30 @@ Para asegurar la coherencia arquitectónica y la integridad de bases de datos re
 El marco operativo cuenta con procesos asilados conformados gracias a Mockito y JUnit 5, no expuestos de manera explícita contra persistencia nativa externa para proveer un pipeline libre y certero.
 
 ### Cómo Correr las Pruebas Localmente
-Puede recurrir a su contenedor host subiendo tests en paralelo, evitando exigencias temporales o instalaciones Java sobre locales en su OS original, invoque desde la raíz:
+
+> **Advertencia:** Si la ejecución mediante Docker falla por temas de incompatibilidad de su sistema, las pruebas pueden efectuarse de manera directa a través de IntelliJ IDEA (ver la guía debajo).
+
+#### Opción 1: Mediante Docker (Recomendado)
+
+Puede recurrir a su contenedor host subiendo tests en paralelo, evitando exigencias temporales o instalaciones Java originarias en su OS local. Invoque desde la raíz:
 ```bash
 docker run --rm -v "$PWD/backend":/app -w /app maven:3-eclipse-temurin-25 mvn clean test
 ```
 
-### Muestra General de Cobertura Aplicada 
+#### Opción 2: Mediante IntelliJ IDEA (En caso de incompatibilidad)
+
+Si tiene inconvenientes con el contenedor, puede validar las pruebas rápidamente desde el IDE:
+
+1. Asegúrese de tener configurado localmente **Java 25** (o la versión correspondiente definida en el `pom.xml` compatible con **Spring Boot 4**) dentro de su entorno para evitar errores de compilación o arranque y garantizar plena compatibilidad en el Contexto de Spring.
+2. Abra únicamente el directorio `backend` en **IntelliJ IDEA**.
+3. Espere a que **Maven** termine de indexar y descargar las dependencias correspondientes.
+4. En el árbol del proyecto, navegue hacia la carpeta `src/test/java`.
+5. Haga clic derecho sobre el paquete de pruebas y seleccione **Run 'All Tests'** (o presione el botón de "Play" ▶️ verde junto al nombre de la clase).
+
+### Muestra General de Cobertura Aplicada
 La ingeniería de QA previó las siguientes rutas algorítmicas de validación directa integradas:
 - **Calidad de Entrada en DTOs**: Blindaje nativo detectando variables irracionales e improcedentes sobre transacciones finales de costo, garantizando un filtrado pasivo anti-negatividad o fallas nulas en registros monetarios.
-- **Veracidad Server-Side Pagination**: Evaluó respuestas conteniendo desbordamientos algorítmicos al apuntar páginas excesivas contra inventarios nulos o minoristas, garantizando devoluciones asiladas íntegras contra Out Of Bounds Limits. 
+- **Veracidad Server-Side Pagination**: Evaluó respuestas conteniendo desbordamientos algorítmicos al apuntar páginas excesivas contra inventarios nulos o minoristas, garantizando devoluciones asiladas íntegras contra Out Of Bounds Limits.
 - **Gestión Multimedia Segura**: Evitar mediante un bloqueo heurístico programado y explícito cualquier elevación/carga simulada conteniendo scripts ejecutables bajo el empaquetado fotográfico.
 - **Relaciones Cíclicas (Eliminaciones en Cascada)**: Interceptación pasiva asegurando las imposibilidades físicas y lógicas contra dependencias en eliminaciones sobre marcas repletas por inventario.
 
