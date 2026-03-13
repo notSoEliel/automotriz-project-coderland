@@ -61,6 +61,7 @@ public class SeedDataRunner implements CommandLineRunner {
         corollaLe.setCilindrada("1800 cc");
         corollaLe.setPrecioVentaBaseUsd(new BigDecimal("22500"));
         corollaLe.setPrecioVentaBaseVes(new BigDecimal("996075"));
+        corollaLe.setPrecioAlquilerBaseUsd(new BigDecimal("45"));
         corollaLe.setPrecioAlquilerBaseVes(new BigDecimal("1992"));
         corollaLe.setColoresDisponibles(List.of("Blanco Perla", "Plata Metálico", "Negro Mica", "Azul Grisáceo"));
         corollaLe.setModelo(corolla);
@@ -75,6 +76,7 @@ public class SeedDataRunner implements CommandLineRunner {
         mustangGt.setCilindrada("5000 cc");
         mustangGt.setPrecioVentaBaseUsd(new BigDecimal("48000"));
         mustangGt.setPrecioVentaBaseVes(new BigDecimal("2124960"));
+        mustangGt.setPrecioAlquilerBaseUsd(new BigDecimal("120"));
         mustangGt.setPrecioAlquilerBaseVes(new BigDecimal("5312"));
         mustangGt.setColoresDisponibles(List.of("Rojo Race", "Gris Magnético", "Azul Atlas"));
         mustangGt.setModelo(mustang);
