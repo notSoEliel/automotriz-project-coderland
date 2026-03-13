@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Wand2, Loader2 } from 'lucide-react';
+import { useError } from '@/context/ErrorContext';
 
 export default function ModalVehiculo({ abierto, setAbierto, vehiculo, agencias, onSuccess }) {
     const estadoInicial = {
@@ -26,6 +27,7 @@ export default function ModalVehiculo({ abierto, setAbierto, vehiculo, agencias,
     const [usarPreciosSugeridos, setUsarPreciosSugeridos] = useState(true);
     const [guardando, setGuardando] = useState(false);
     const [generandoPlaca, setGenerandoPlaca] = useState(false);
+    const { showModal } = useError();
 
     useEffect(() => {
         if (!abierto) return;
@@ -90,7 +92,7 @@ export default function ModalVehiculo({ abierto, setAbierto, vehiculo, agencias,
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!formulario.agenciaId) { alert('Debes seleccionar una agencia.'); return; }
+        if (!formulario.agenciaId) { showModal('Debes seleccionar una agencia asignada a este vehículo físico.', 'Campo Obligatorio'); return; }
         setGuardando(true);
         try {
             const payload = { ...formulario };
@@ -105,7 +107,7 @@ export default function ModalVehiculo({ abierto, setAbierto, vehiculo, agencias,
             setAbierto(false); onSuccess();
         } catch (error) {
             console.error(error);
-            alert("Error al guardar. Verifica que la placa sea única.");
+            showModal("Hubo un error al guardar el vehículo. Verifica que la placa sea única y no esté duplicada en otra agencia.", "Error al Guardar");
         } finally { setGuardando(false); }
     };
 

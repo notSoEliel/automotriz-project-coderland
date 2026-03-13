@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Plus, Pencil, Trash2, MoreVertical, Image as ImageIcon, Upload, Lock, Unlock, X, ExternalLink } from 'lucide-react';
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersion }) {
     const [versiones, setVersiones] = useState([]);
@@ -20,6 +21,7 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
     const [modalAbierto, setModalAbierto] = useState(false);
     const [versionIdEdicion, setVersionIdEdicion] = useState(null);
     const [archivoFoto, setArchivoFoto] = useState(null);
+    const [confirmObj, setConfirmObj] = useState({ isOpen: false, id: null });
 
     const anioMaximo = new Date().getFullYear() + 1;
 
@@ -30,8 +32,9 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
     // Estados para el motor (Desplegable vs Texto Libre)
     const [motorPersonalizado, setMotorPersonalizado] = useState(false);
     const opcionesMotor = ["Gasolina", "Diésel", "Eléctrico", "Híbrido (HEV)", "Híbrido Enchufable (PHEV)", "Gas (GNC/GLP)", "Hidrógeno"];
+    const motorSinCilindrada = ['Eléctrico', 'Hidrógeno'].includes(formulario?.motor);
 
-    const TASA_CAMBIO = 36.5;
+    const [tasaCambio, setTasaCambio] = useState(442.7);
     const [autoVenta, setAutoVenta] = useState(true);
     const [autoAlquiler, setAutoAlquiler] = useState(true);
     const memoriaVes = useRef({ venta: '', alquiler: '' });
@@ -71,10 +74,10 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
         setFormulario(prev => {
             const nuevoEstado = { ...prev, [name]: value };
             if (name === 'precioVentaBaseUsd' && autoVenta) {
-                nuevoEstado.precioVentaBaseVes = value ? (parseFloat(value) * TASA_CAMBIO).toFixed(2) : '';
+                nuevoEstado.precioVentaBaseVes = value ? (parseFloat(value) * tasaCambio).toFixed(2) : '';
             }
             if (name === 'precioAlquilerBaseUsd' && autoAlquiler) {
-                nuevoEstado.precioAlquilerBaseVes = value ? (parseFloat(value) * TASA_CAMBIO).toFixed(2) : '';
+                nuevoEstado.precioAlquilerBaseVes = value ? (parseFloat(value) * tasaCambio).toFixed(2) : '';
             }
             return nuevoEstado;
         });
@@ -95,7 +98,7 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
             setAutoVenta(checked);
             if (checked) {
                 memoriaVes.current.venta = formulario.precioVentaBaseVes;
-                setFormulario(prev => ({ ...prev, precioVentaBaseVes: prev.precioVentaBaseUsd ? (parseFloat(prev.precioVentaBaseUsd) * TASA_CAMBIO).toFixed(2) : '' }));
+                setFormulario(prev => ({ ...prev, precioVentaBaseVes: prev.precioVentaBaseUsd ? (parseFloat(prev.precioVentaBaseUsd) * tasaCambio).toFixed(2) : '' }));
             } else {
                 setFormulario(prev => ({ ...prev, precioVentaBaseVes: memoriaVes.current.venta }));
             }
@@ -103,7 +106,7 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
             setAutoAlquiler(checked);
             if (checked) {
                 memoriaVes.current.alquiler = formulario.precioAlquilerBaseVes;
-                setFormulario(prev => ({ ...prev, precioAlquilerBaseVes: prev.precioAlquilerBaseUsd ? (parseFloat(prev.precioAlquilerBaseUsd) * TASA_CAMBIO).toFixed(2) : '' }));
+                setFormulario(prev => ({ ...prev, precioAlquilerBaseVes: prev.precioAlquilerBaseUsd ? (parseFloat(prev.precioAlquilerBaseUsd) * tasaCambio).toFixed(2) : '' }));
             } else {
                 setFormulario(prev => ({ ...prev, precioAlquilerBaseVes: memoriaVes.current.alquiler }));
             }
@@ -169,19 +172,26 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
         setModalAbierto(true);
     };
 
-    const eliminarVersion = async (id, e) => {
+    const handleEliminar = (id, e) => {
         e.stopPropagation();
-        if (!window.confirm("¿Eliminar esta versión de catálogo?")) return;
+        setConfirmObj({ isOpen: true, id });
+    };
+
+    const executeEliminar = async () => {
+        if (!confirmObj.id) return;
         try {
-            await clienteAxios.delete(`/versiones/${id}`);
+            await clienteAxios.delete(`/versiones/${confirmObj.id}`);
             setRefreshKey(prev => prev + 1);
-        } catch (error) { console.error("Error al eliminar:", error); }
+        } catch (error) { 
+            console.error("Error al eliminar:", error); 
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        const cilindradaFinal = formulario.cilindrada ? `${formulario.cilindrada} cc` : '0 cc';
+        const motorEsSinCilindrada = ['Eléctrico', 'Hidrógeno'].includes(formulario.motor);
+        const cilindradaFinal = (!motorEsSinCilindrada && formulario.cilindrada) ? `${formulario.cilindrada} cc` : '0 cc';
         
         const payloadJson = {
             titulo: formulario.titulo,
@@ -297,7 +307,6 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
                                     )}
                                 </div>
 
-                                {/* Cilindrada blindada contra negativos */}
                                 <div className="space-y-2 md:col-span-3">
                                     <Label>Cilindrada (Opcional)</Label>
                                     <div className="relative">
@@ -306,12 +315,13 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
                                             type="number" 
                                             min="0"
                                             onKeyDown={(e) => bloquearTeclasInvalidas(e, false)} // false = bloquea el punto (solo enteros)
-                                            value={formulario.cilindrada} 
+                                            value={motorSinCilindrada ? '' : formulario.cilindrada} 
                                             onChange={handleInputChange} 
                                             placeholder="Ej. 1987" 
                                             className="pr-8" 
+                                            disabled={motorSinCilindrada}
                                         />
-                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-zinc-500 font-medium">cc</span>
+                                        <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium ${motorSinCilindrada ? 'text-zinc-300' : 'text-zinc-500'}`}>cc</span>
                                     </div>
                                 </div>
 
@@ -349,7 +359,26 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
                         <div className="space-y-4">
                             <h4 className="text-sm font-semibold text-emerald-700 border-b pb-1 flex justify-between items-end">
                                 Precios Base
-                                <span className="text-xs font-normal text-zinc-500">Tasa actual: {TASA_CAMBIO} VES/USD</span>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs font-normal text-zinc-500">Tasa (VES/USD):</span>
+                                    <Input 
+                                        type="number" 
+                                        step="0.01" 
+                                        min="1" 
+                                        value={tasaCambio} 
+                                        onChange={(e) => {
+                                            const nuevaTasa = parseFloat(e.target.value) || 0;
+                                            setTasaCambio(nuevaTasa);
+                                            if (autoVenta && formulario.precioVentaBaseUsd) {
+                                                setFormulario(prev => ({ ...prev, precioVentaBaseVes: (parseFloat(prev.precioVentaBaseUsd) * nuevaTasa).toFixed(2) }));
+                                            }
+                                            if (autoAlquiler && formulario.precioAlquilerBaseUsd) {
+                                                setFormulario(prev => ({ ...prev, precioAlquilerBaseVes: (parseFloat(prev.precioAlquilerBaseUsd) * nuevaTasa).toFixed(2) }));
+                                            }
+                                        }}
+                                        className="h-6 w-20 text-xs px-2 py-0"
+                                    />
+                                </div>
                             </h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="space-y-4 bg-zinc-50 p-4 rounded-lg border border-zinc-100">
@@ -479,7 +508,7 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
                                         <DropdownMenuItem onClick={(e) => abrirModalEditar(version, e)}>
                                             <Pencil size={14} className="mr-2" /> Editar
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={(e) => eliminarVersion(version.id, e)} className="text-red-600 focus:text-red-600 focus:bg-red-50">
+                                        <DropdownMenuItem onClick={(e) => handleEliminar(version.id, e)} className="text-red-600 focus:text-red-600 focus:bg-red-50">
                                             <Trash2 size={14} className="mr-2" /> Eliminar
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
@@ -521,6 +550,14 @@ export default function VistaVersiones({ modeloSeleccionado, entrarADetalleVersi
                     </Card>
                 </div>
             )}
+            
+            <ConfirmModal 
+                isOpen={confirmObj.isOpen} 
+                onClose={() => setConfirmObj({ isOpen: false, id: null })} 
+                onConfirm={executeEliminar} 
+                titulo="¿Eliminar Versión?" 
+                mensaje="¿Estás seguro de que deseas eliminar esta versión de catálogo?"
+            />
         </div>
     );
 }

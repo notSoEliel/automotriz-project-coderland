@@ -112,11 +112,13 @@ A fin de garantizar resultados ininterrumpidos y agilidad metodológica, estas a
 | **Restricciones de Seguridad** | Blindaje contra escalada de privilegios y accesos no autorizados (`HTTP 401/403`). Bloqueo heurístico para interceptar la subida o inserción de ejecutables y/o archivos maliciosos frente a las galerías nativas WebP. |
 | **Integridad Referencial** | Restricciones de borrado estructural en cascada desde la base de datos de origen `JPA` (e.g. evitar categóricamente el borrado de marcas primarias que alojan catálogos activos de modelos asociados a ellas). |
 
-Puede disparar e invocar la capa de compilación estricta utilizando su CLI:
+Puede disparar e invocar la capa de compilación estricta utilizando Docker para garantizar el aislamiento (sin requerir Java 25 localmente):
 
 ```bash
-cd backend
-mvn clean test
+# Ejecución aislada a través del Wrapper y contenedor oficial
+
+#Ejecutar desde la raíz del proyecto
+docker run --rm -v "$PWD/backend":/app -w /app maven:3-eclipse-temurin-25 mvn clean test
 ```
 
 ## Estructura Analítica de Directorios

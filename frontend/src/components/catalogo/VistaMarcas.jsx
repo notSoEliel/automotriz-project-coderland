@@ -17,6 +17,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import ConfirmModal from '@/components/ui/ConfirmModal';
+import { useError } from '@/context/ErrorContext';
 
 export default function VistaMarcas({ entrarAModelo }) {
     const [marcas, setMarcas] = useState([]);
@@ -27,6 +29,8 @@ export default function VistaMarcas({ entrarAModelo }) {
     const [modalAbierto, setModalAbierto] = useState(false);
     const [marcaIdEdicion, setMarcaIdEdicion] = useState(null);
     const [formulario, setFormulario] = useState({ nombre: '' });
+    const [confirmObj, setConfirmObj] = useState({ isOpen: false, id: null });
+    const { showModal } = useError();
 
     // Cargar Marcas
     useEffect(() => {
@@ -62,15 +66,23 @@ export default function VistaMarcas({ entrarAModelo }) {
         setModalAbierto(true);
     };
 
-    const eliminarMarca = async (id, e) => {
+    const handleEliminar = (id, e) => {
         e.stopPropagation();
-        if (!window.confirm("¿Estás seguro de eliminar esta marca? Se eliminarán sus modelos y versiones asociadas.")) return;
+        setConfirmObj({ isOpen: true, id });
+    };
 
+    const executeEliminar = async () => {
+        if (!confirmObj.id) return;
         try {
-            await clienteAxios.delete(`/marcas/${id}`);
+            await clienteAxios.delete(`/marcas/${confirmObj.id}`);
             setRefreshKey(prev => prev + 1);
         } catch (error) {
-            console.error("Error al eliminar marca:", error);
+            if (error.response?.status === 409) {
+                showModal("No se puede eliminar la marca porque tiene modelos o vehículos físicos asociados. Elimínelos primero.", "Acción Denegada");
+            } else {
+                console.error("Error al eliminar marca:", error);
+                showModal("Ocurrió un error al intentar eliminar la marca.", "Error");
+            }
         }
     };
 
@@ -144,7 +156,7 @@ export default function VistaMarcas({ entrarAModelo }) {
                                         <DropdownMenuItem onClick={(e) => abrirModalEditar(marca, e)}>
                                             <Pencil size={14} className="mr-2" /> Editar
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem onClick={(e) => eliminarMarca(marca.id, e)} className="text-red-600 focus:text-red-600 focus:bg-red-50">
+                                        <DropdownMenuItem onClick={(e) => handleEliminar(marca.id, e)} className="text-red-600 focus:text-red-600 focus:bg-red-50">
                                             <Trash2 size={14} className="mr-2" /> Eliminar
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
@@ -175,6 +187,14 @@ export default function VistaMarcas({ entrarAModelo }) {
 
                 </div>
             )}
+            
+            <ConfirmModal 
+                isOpen={confirmObj.isOpen} 
+                onClose={() => setConfirmObj({ isOpen: false, id: null })} 
+                onConfirm={executeEliminar} 
+                titulo="¿Eliminar Marca?" 
+                mensaje="¿Estás seguro de eliminar esta marca? Todas las asociaciones serán eliminadas si no hay restricciones activas."
+            />
         </div>
     );
 }

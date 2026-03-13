@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Plus, Pencil, Trash2, MoreVertical, Image as ImageIcon } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import ConfirmModal from '@/components/ui/ConfirmModal';
 
 export default function VistaModelos({ marcaSeleccionada, entrarAVersion }) {
     const [modelos, setModelos] = useState([]);
@@ -15,6 +16,7 @@ export default function VistaModelos({ marcaSeleccionada, entrarAVersion }) {
     const [modalAbierto, setModalAbierto] = useState(false);
     const [modeloIdEdicion, setModeloIdEdicion] = useState(null);
     const [formulario, setFormulario] = useState({ nombre: '', marcaId: marcaSeleccionada.id });
+    const [confirmObj, setConfirmObj] = useState({ isOpen: false, id: null });
 
     // Cargar Modelos de ESTA marca específica
     useEffect(() => {
@@ -49,11 +51,15 @@ export default function VistaModelos({ marcaSeleccionada, entrarAVersion }) {
         setModalAbierto(true);
     };
 
-    const eliminarModelo = async (id, e) => {
+    const handleEliminar = (id, e) => {
         e.stopPropagation();
-        if (!window.confirm("¿Eliminar este modelo y todas sus versiones?")) return;
+        setConfirmObj({ isOpen: true, id });
+    };
+
+    const executeEliminar = async () => {
+        if (!confirmObj.id) return;
         try {
-            await clienteAxios.delete(`/modelos/${id}`);
+            await clienteAxios.delete(`/modelos/${confirmObj.id}`);
             setRefreshKey(prev => prev + 1);
         } catch (error) {
             console.error("Error al eliminar:", error);
@@ -109,7 +115,7 @@ export default function VistaModelos({ marcaSeleccionada, entrarAVersion }) {
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
                                         <DropdownMenuItem onClick={(e) => abrirModalEditar(modelo, e)}><Pencil size={14} className="mr-2" /> Editar</DropdownMenuItem>
-                                        <DropdownMenuItem onClick={(e) => eliminarModelo(modelo.id, e)} className="text-red-600"><Trash2 size={14} className="mr-2" /> Eliminar</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={(e) => handleEliminar(modelo.id, e)} className="text-red-600"><Trash2 size={14} className="mr-2" /> Eliminar</DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </div>
@@ -138,6 +144,14 @@ export default function VistaModelos({ marcaSeleccionada, entrarAVersion }) {
                     </Card>
                 </div>
             )}
+            
+            <ConfirmModal 
+                isOpen={confirmObj.isOpen} 
+                onClose={() => setConfirmObj({ isOpen: false, id: null })} 
+                onConfirm={executeEliminar} 
+                titulo="¿Eliminar Modelo?" 
+                mensaje="¿Estás seguro de que deseas eliminar este modelo y todas sus versiones asociadas?"
+            />
         </div>
     );
 }

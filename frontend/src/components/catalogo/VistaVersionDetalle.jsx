@@ -4,11 +4,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Pencil, Image as ImageIcon, Trash2, Upload, Star } from 'lucide-react';
+import ConfirmModal from '@/components/ui/ConfirmModal';
+import { useError } from '@/context/ErrorContext';
 
 export default function VistaVersionDetalle({ versionId }) {
     const [version, setVersion] = useState(null);
     const [cargando, setCargando] = useState(true);
     const [refreshKey, setRefreshKey] = useState(0);
+    const [confirmObj, setConfirmObj] = useState({ isOpen: false, id: null });
+    const { showModal } = useError();
 
     useEffect(() => {
         const fetchVersion = async () => {
@@ -48,13 +52,18 @@ export default function VistaVersionDetalle({ versionId }) {
         }
     };
 
-    const eliminarFoto = async (imagenId) => {
-        if (!window.confirm("¿Eliminar esta imagen de la galería?")) return;
+    const handleEliminarFoto = (imagenId) => {
+        setConfirmObj({ isOpen: true, id: imagenId });
+    };
+
+    const executeEliminar = async () => {
+        if (!confirmObj.id) return;
         try {
-            await clienteAxios.delete(`/versiones/galeria/${imagenId}`);
+            await clienteAxios.delete(`/versiones/galeria/${confirmObj.id}`);
             setRefreshKey(prev => prev + 1);
         } catch (error) {
             console.error("Error al eliminar imagen:", error);
+            showModal("Ocurrió un error al intentar eliminar la imagen.", "Error");
         }
     };
 
@@ -64,7 +73,7 @@ export default function VistaVersionDetalle({ versionId }) {
             setRefreshKey(prev => prev + 1);
         } catch (error) {
             console.error("Error al establecer portada:", error);
-            alert("No se pudo establecer la imagen como portada.");
+            showModal("No se pudo establecer la imagen como portada. Verifica tu conexión e inténtalo de nuevo.", "Error al Actualizar");
         }
     };
 
@@ -182,7 +191,7 @@ export default function VistaVersionDetalle({ versionId }) {
                                     size="icon" 
                                     title="Eliminar de Galería"
                                     className="h-8 w-8 shadow-sm"
-                                    onClick={() => eliminarFoto(img.id)}
+                                    onClick={() => handleEliminarFoto(img.id)}
                                 >
                                     <Trash2 size={14} />
                                 </Button>
@@ -194,6 +203,14 @@ export default function VistaVersionDetalle({ versionId }) {
                     ))}
                 </div>
             </div>
+            
+            <ConfirmModal 
+                isOpen={confirmObj.isOpen} 
+                onClose={() => setConfirmObj({ isOpen: false, id: null })} 
+                onConfirm={executeEliminar} 
+                titulo="¿Eliminar Imagen?" 
+                mensaje="¿Estás seguro de que deseas eliminar permanentemente esta imagen de la galería?"
+            />
         </div>
     );
 }

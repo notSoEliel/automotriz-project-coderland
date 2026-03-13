@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import clienteAxios from '@/api/clienteAxios';
 import SubNavCatalogo from '@/components/catalogo/SubNavCatalogo';
-import { CarFront, Search, LayoutGrid, List, Plus, MapPin, Tag, Eye, Pencil, Trash2 } from 'lucide-react';
+import { CarFront, Search, LayoutGrid, List, Plus, MapPin, Tag, Eye, Pencil, Trash2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -10,6 +10,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import ModalVehiculo from '@/components/inventario/ModalVehiculo';
 import DetalleVehiculo from '@/components/inventario/DetalleVehiculo';
+import ConfirmModal from '@/components/ui/ConfirmModal';
+import { useError } from '@/context/ErrorContext';
 
 const getImageUrl = (ruta) => {
     if (!ruta) return null;
@@ -35,6 +37,10 @@ export default function Inventario() {
     const [vehiculoEdicion, setVehiculoEdicion] = useState(null);
     const [vehiculoDetalle, setVehiculoDetalle] = useState(null);
 
+    const [flujoIncompleto, setFlujoIncompleto] = useState(false);
+    const [confirmObj, setConfirmObj] = useState({ isOpen: false, id: null });
+    const { showModal } = useError();
+
     const estadosVehiculo = ['DISPONIBLE', 'RESERVADO', 'VENDIDO', 'ALQUILADO'];
 
     useEffect(() => {
@@ -46,13 +52,18 @@ export default function Inventario() {
                 if (filtroEstado !== 'todos') params.append('estado', filtroEstado);
                 params.append('page', currentPage);
                 params.append('size', 10);
-                const [resV, resA] = await Promise.all([
+                const [resV, resA, resVersiones] = await Promise.all([
                     clienteAxios.get(`/vehiculos?${params.toString()}`),
-                    clienteAxios.get('/agencias')
+                    clienteAxios.get('/agencias'),
+                    clienteAxios.get('/versiones')
                 ]);
                 setVehiculos(resV.data.content || []);
                 setTotalPages(resV.data.totalPages || 1);
                 setAgencias(resA.data);
+                
+                const hayVersiones = Array.isArray(resVersiones.data) && resVersiones.data.length > 0;
+                const hayAgencias = Array.isArray(resA.data) && resA.data.length > 0;
+                setFlujoIncompleto(!hayVersiones || !hayAgencias);
             } catch (error) {
                 console.error("Error cargando inventario:", error);
             } finally {
@@ -82,21 +93,32 @@ export default function Inventario() {
         return null;
     };
 
-    const handleEliminar = async (e, id) => {
+    const handleEliminar = (e, id) => {
         e.stopPropagation();
-        if (!confirm('¿Eliminar este vehículo permanentemente?')) return;
+        setConfirmObj({ isOpen: true, id });
+    };
+
+    const executeEliminar = async () => {
+        if (!confirmObj.id) return;
         try {
-            await clienteAxios.delete(`/vehiculos/${id}`);
+            await clienteAxios.delete(`/vehiculos/${confirmObj.id}`);
             setRefreshKey(k => k + 1);
         } catch (err) {
             console.error(err);
-            alert('Error al eliminar.');
+            showModal('No se pudo eliminar el vehículo. Intente nuevamente.', 'Error de Eliminación');
         }
     };
 
     const abrirDetalle = (v) => setVehiculoDetalle(v);
     const cerrarDetalle = () => { setVehiculoDetalle(null); setRefreshKey(k => k + 1); };
-    const abrirModalCrear = () => { setVehiculoEdicion(null); setModalAbierto(true); };
+    const abrirModalCrear = () => { 
+        if (flujoIncompleto) {
+            showModal("Para registrar un vehículo, necesitas tener creadas al menos una Versión (Marca > Modelo > Versión) y una Agencia.", "Operación Bloqueada");
+            return;
+        }
+        setVehiculoEdicion(null); 
+        setModalAbierto(true); 
+    };
     const abrirModalEditar = (e, v) => { e.stopPropagation(); setVehiculoEdicion(v); setModalAbierto(true); };
 
     // ── Vista Detalle (Nivel 5) ────────────────────────────────
@@ -127,6 +149,22 @@ export default function Inventario() {
             </div>
 
             <SubNavCatalogo />
+
+            {flujoIncompleto && (
+                <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-md">
+                    <div className="flex">
+                        <div className="flex-shrink-0">
+                            <AlertTriangle className="h-5 w-5 text-amber-500" />
+                        </div>
+                        <div className="ml-3">
+                            <h3 className="text-sm font-medium text-amber-800">Flujo Incompleto</h3>
+                            <div className="mt-2 text-sm text-amber-700">
+                                <p>Para registrar un vehículo físico, el sistema requiere al menos una <span className="font-semibold">Versión</span> y una <span className="font-semibold">Agencia</span> configuradas en la base de datos.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Filtros */}
             <div className="flex flex-wrap gap-4 items-center justify-between bg-zinc-50 p-4 rounded-lg border border-zinc-200">
@@ -271,6 +309,14 @@ export default function Inventario() {
             )}
 
             <ModalVehiculo abierto={modalAbierto} setAbierto={setModalAbierto} vehiculo={vehiculoEdicion} agencias={agencias} onSuccess={() => setRefreshKey(k => k + 1)} />
+            
+            <ConfirmModal 
+                isOpen={confirmObj.isOpen} 
+                onClose={() => setConfirmObj({ isOpen: false, id: null })} 
+                onConfirm={executeEliminar} 
+                titulo="¿Eliminar vehículo?" 
+                mensaje="¿Estás seguro de que deseas eliminar este vehículo permanentemente? Esta acción es irreversible."
+            />
         </div>
     );
 }

@@ -20,6 +20,8 @@ import {
 } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Building2, Plus, Search, CheckCircle2, Pencil, Trash2, Eye } from 'lucide-react';
+import ConfirmModal from '@/components/ui/ConfirmModal';
+import { useError } from '@/context/ErrorContext';
 
 export default function Agencias() {
     const navigate = useNavigate();
@@ -30,6 +32,9 @@ export default function Agencias() {
     // Estados del Modal
     const [modalAbierto, setModalAbierto] = useState(false);
     const [agenciaIdEdicion, setAgenciaIdEdicion] = useState(null); // Null = Crear, ID = Editar
+    
+    const [confirmObj, setConfirmObj] = useState({ isOpen: false, id: null });
+    const { showModal } = useError();
 
     // Estado del Formulario (Alineado estrictamente con el JSON del Backend)
     const estadoInicialFormulario = {
@@ -100,14 +105,19 @@ export default function Agencias() {
     };
 
     // Eliminar Agencia
-    const eliminarAgencia = async (id) => {
-        if (!window.confirm("¿Estás seguro de que deseas eliminar esta agencia?")) return;
+    const handleEliminar = (e, id) => {
+        e.stopPropagation();
+        setConfirmObj({ isOpen: true, id });
+    };
 
+    const executeEliminar = async () => {
+        if (!confirmObj.id) return;
         try {
-            await clienteAxios.delete(`/agencias/${id}`);
+            await clienteAxios.delete(`/agencias/${confirmObj.id}`);
             setRefreshKey(prev => prev + 1);
         } catch (error) {
             console.error("Error al eliminar:", error);
+            showModal("No se puede eliminar esta agencia porque tiene vehículos físicos asociados.", "Error de Eliminación");
         }
     };
 
@@ -287,7 +297,7 @@ export default function Agencias() {
                                             <Button 
                                                 variant="ghost" 
                                                 size="icon" 
-                                                onClick={(e) => { e.stopPropagation(); eliminarAgencia(agencia.id); }}
+                                                onClick={(e) => handleEliminar(e, agencia.id)}
                                                 className="text-zinc-500 hover:text-red-600 hover:bg-red-50 h-8 w-8 sm:h-9 sm:w-9 shrink-0"
                                             >
                                                 <Trash2 size={16} />
@@ -300,6 +310,14 @@ export default function Agencias() {
                     </TableBody>
                 </Table>
             </div>
+            
+            <ConfirmModal 
+                isOpen={confirmObj.isOpen} 
+                onClose={() => setConfirmObj({ isOpen: false, id: null })} 
+                onConfirm={executeEliminar} 
+                titulo="¿Eliminar Agencia?" 
+                mensaje="¿Estás seguro de que deseas eliminar esta agencia permanentemente? Esta acción no se puede deshacer."
+            />
         </div>
     );
 }

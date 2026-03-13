@@ -6,6 +6,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,5 +27,13 @@ public class GlobalExceptionHandler {
         });
 
         return new ResponseEntity<>(errores, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, String>> manejarViolacionDeIntegridad(DataIntegrityViolationException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Conflicto de integridad de datos");
+        response.put("mensaje", "No se puede realizar la operación porque el registro está asociado a otros elementos (por ejemplo, una marca con modelos asociados).");
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT); // 409 Conflict
     }
 }

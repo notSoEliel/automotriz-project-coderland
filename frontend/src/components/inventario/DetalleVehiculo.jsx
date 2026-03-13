@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft, Pencil, Upload, Trash2, ChevronLeft, ChevronRight, MapPin, Tag, DollarSign, CarFront, ImagePlus } from 'lucide-react';
+import ConfirmModal from '@/components/ui/ConfirmModal';
+import { useError } from '@/context/ErrorContext';
 
 const getImageUrl = (ruta) => {
     if (!ruta) return null;
@@ -16,6 +18,8 @@ export default function DetalleVehiculo({ vehiculo, onVolver, onEditar }) {
     const [indiceActual, setIndiceActual] = useState(0);
     const [subiendo, setSubiendo] = useState(false);
     const fileInputRef = useRef(null);
+    const [confirmObj, setConfirmObj] = useState({ isOpen: false, id: null });
+    const { showModal } = useError();
 
     // Combinar fotos propias + fallback a versión
     const todasLasFotos = fotos.length > 0
@@ -40,22 +44,26 @@ export default function DetalleVehiculo({ vehiculo, onVolver, onEditar }) {
             setIndiceActual(fotos.length); // Go to the just-uploaded one
         } catch (err) {
             console.error(err);
-            alert('Error al subir la foto.');
+            showModal('Hubo un error al intentar subir la foto. Verifique el formato o intente más tarde.', 'Error de Carga');
         } finally {
             setSubiendo(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
         }
     };
 
-    const handleEliminarFoto = async (multimediaId) => {
-        if (!confirm('¿Eliminar esta foto?')) return;
+    const handleEliminarFotoBtn = (multimediaId) => {
+        setConfirmObj({ isOpen: true, id: multimediaId });
+    };
+
+    const executeEliminarFoto = async () => {
+        if (!confirmObj.id) return;
         try {
-            await clienteAxios.delete(`/vehiculos/multimedia/${multimediaId}`);
-            setFotos(prev => prev.filter(f => f.id !== multimediaId));
+            await clienteAxios.delete(`/vehiculos/multimedia/${confirmObj.id}`);
+            setFotos(prev => prev.filter(f => f.id !== confirmObj.id));
             setIndiceActual(0);
         } catch (err) {
             console.error(err);
-            alert('Error al eliminar la foto.');
+            showModal('Hubo un error al intentar eliminar la foto.', 'Error de Eliminación');
         }
     };
 
@@ -152,7 +160,7 @@ export default function DetalleVehiculo({ vehiculo, onVolver, onEditar }) {
                     {/* Delete button for current photo */}
                     {fotoActual?.propia && (
                         <div className="flex justify-end">
-                            <Button variant="outline" size="sm" className="text-red-500 hover:bg-red-50 gap-1 text-xs" onClick={() => handleEliminarFoto(fotoActual.id)}>
+                            <Button variant="outline" size="sm" className="text-red-500 hover:bg-red-50 gap-1 text-xs" onClick={() => handleEliminarFotoBtn(fotoActual.id)}>
                                 <Trash2 size={12} /> Eliminar foto actual
                             </Button>
                         </div>
@@ -225,6 +233,14 @@ export default function DetalleVehiculo({ vehiculo, onVolver, onEditar }) {
                     </Card>
                 </div>
             </div>
+
+            <ConfirmModal 
+                isOpen={confirmObj.isOpen} 
+                onClose={() => setConfirmObj({ isOpen: false, id: null })} 
+                onConfirm={executeEliminarFoto} 
+                titulo="¿Eliminar Fotografía?" 
+                mensaje="¿Estás seguro de que deseas eliminar permanentemente esta foto del vehículo?"
+            />
         </div>
     );
 }
