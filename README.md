@@ -17,29 +17,56 @@
 
 ## Cómo Iniciar el Proyecto
 
-La infraestructura local (Persistencia de PostgreSQL, Servomotor de API y renderizado del cliente) ha sido íntegramente contenedorizada en Docker. Se aprovisionaron redes internas para gobernar el enrutamiento restringido y volúmenes permanentes (`postgres_data` y `/uploads`) para proteger los datos y la subida de imágenes multimedia.
+La infraestructura local (Persistencia de PostgreSQL, capa de lógica de negocio y renderizado del cliente) ha sido íntegramente contenedorizada en Docker. Se aprovisionaron redes internas para gobernar el enrutamiento restringido y volúmenes permanentes (`postgres_data` y `/uploads`) para proteger los datos y la subida de imágenes multimedia.
 
 El ecosistema entero se levanta de manera ágil invocando su ejecución. A continuación, los pasos de ejecución según su sistema operativo:
 
-### Mac y Windows
+### Paso 1: Clonar el Repositorio
 
-1. Asegúrese de tener **Docker Desktop** abierto y ejecutándose de fondo.
-2. Abra su terminal (Terminal principal en Mac; PowerShell/Git Bash en Windows) y ejecute los siguientes comandos:
+Abra su terminal (Terminal principal en Mac; PowerShell/Git Bash en Windows; o su emulador en Linux) y ejecute los siguientes comandos para obtener el código fuente y posicionarse en la raíz del proyecto:
 
 ```bash
 git clone https://github.com/notSoEliel/automotriz-project-coderland.git
 cd automotriz-project-coderland
+```
+
+### Paso 2: Ejecución de Pruebas Automatizadas (QA)
+
+Antes de levantar la infraestructura general, es altamente recomendable ejecutar las pruebas unitarias para asegurar la integridad del entorno. El marco operativo cuenta con procesos asilados conformados gracias a Mockito y JUnit 5.
+
+> **Advertencia:** Si la ejecución mediante Docker falla por temas de incompatibilidad de su sistema, las pruebas pueden efectuarse de manera directa a través de IntelliJ IDEA (ver la guía debajo).
+
+#### Opción 1: Mediante Docker (Recomendado)
+
+Puede recurrir a su contenedor host subiendo tests en paralelo, evitando exigencias temporales o instalaciones Java originarias en su OS local. Invoque desde la raíz:
+```bash
+docker run --rm -v "$PWD/backend":/app -w /app maven:3-eclipse-temurin-25 mvn clean test
+```
+
+#### Opción 2: Mediante IntelliJ IDEA (En caso de incompatibilidad)
+
+Si tiene inconvenientes con el contenedor, puede validar las pruebas rápidamente desde el IDE:
+
+1. Asegúrese de tener configurado localmente **Java 25** (o la versión correspondiente definida en el `pom.xml` compatible con **Spring Boot 4**) dentro de su entorno para evitar errores de compilación o arranque y garantizar plena compatibilidad en el Contexto de Spring.
+2. Abra únicamente el directorio `backend` en **IntelliJ IDEA**.
+3. Espere a que **Maven** termine de indexar y descargar las dependencias correspondientes.
+4. En el árbol del proyecto, navegue hacia la carpeta `src/test/java`.
+5. Haga clic derecho sobre el paquete de pruebas y seleccione **Run 'All Tests'** (o presione el botón de "Play" ▶️ verde junto al nombre de la clase).
+
+*Puede revisar el alcance de estas pruebas en la sección [Muestra General de Cobertura Aplicada](#muestra-general-de-cobertura-aplicada) más abajo.*
+
+### Paso 3: Levantar el Proyecto
+
+Una vez superadas las pruebas, levante el ecosistema entero de manera ágil invocando su ejecución (asegúrese de tener **Docker Desktop** / el demonio de Docker ejecutándose de fondo):
+
+#### Mac y Windows
+```bash
 docker-compose up -d
 ```
 
-### Linux
-
-1. Asegúrese de que el servicio de Docker esté activo ejecutando `sudo systemctl start docker`.
-2. Dependiendo de los permisos definidos en su entorno particular, quizá necesite usar cuenta administrativa (sudo):
-
+#### Linux
+Dependiendo de los permisos definidos en su entorno particular, quizá necesite usar cuenta administrativa (sudo):
 ```bash
-git clone https://github.com/notSoEliel/automotriz-project-coderland.git
-cd automotriz-project-coderland
 sudo docker-compose up -d
 ```
 
@@ -65,31 +92,6 @@ Para asegurar la coherencia arquitectónica y la integridad de bases de datos re
 2. **Constituir el Modelo**: Ingrese en el listado sobre esa marca para asignar a esta dependencia su respectivo Modelo contenedor.
 3. **Construir una Versión**: Formule el acabado fotográfico referencial, estableciendo un precio y estipulando en su ficha los desplazamientos de especificación técnica correspondientes asimiladas al modelo en cuestión.
 4. **Acoplar el Vehículo (Matriculación Fija)**: Finalice el camino acercándose a la solapa **Inventario**, inyectando localmente una unidad donde converjan placa base, la versión diseñada previa y asigne alguna de las distintas ubicaciones de agencias correspondientes.
-
-## Ejecución de Pruebas Automatizadas (QA)
-
-El marco operativo cuenta con procesos asilados conformados gracias a Mockito y JUnit 5, no expuestos de manera explícita contra persistencia nativa externa para proveer un pipeline libre y certero.
-
-### Cómo Correr las Pruebas Localmente
-
-> **Advertencia:** Si la ejecución mediante Docker falla por temas de incompatibilidad de su sistema, las pruebas pueden efectuarse de manera directa a través de IntelliJ IDEA (ver la guía debajo).
-
-#### Opción 1: Mediante Docker (Recomendado)
-
-Puede recurrir a su contenedor host subiendo tests en paralelo, evitando exigencias temporales o instalaciones Java originarias en su OS local. Invoque desde la raíz:
-```bash
-docker run --rm -v "$PWD/backend":/app -w /app maven:3-eclipse-temurin-25 mvn clean test
-```
-
-#### Opción 2: Mediante IntelliJ IDEA (En caso de incompatibilidad)
-
-Si tiene inconvenientes con el contenedor, puede validar las pruebas rápidamente desde el IDE:
-
-1. Asegúrese de tener configurado localmente **Java 25** (o la versión correspondiente definida en el `pom.xml` compatible con **Spring Boot 4**) dentro de su entorno para evitar errores de compilación o arranque y garantizar plena compatibilidad en el Contexto de Spring.
-2. Abra únicamente el directorio `backend` en **IntelliJ IDEA**.
-3. Espere a que **Maven** termine de indexar y descargar las dependencias correspondientes.
-4. En el árbol del proyecto, navegue hacia la carpeta `src/test/java`.
-5. Haga clic derecho sobre el paquete de pruebas y seleccione **Run 'All Tests'** (o presione el botón de "Play" ▶️ verde junto al nombre de la clase).
 
 ### Muestra General de Cobertura Aplicada
 La ingeniería de QA previó las siguientes rutas algorítmicas de validación directa integradas:
@@ -120,7 +122,7 @@ Si requiere evaluar las lógicas transaccionales visualmente bajo editores o int
 
 ### Propósito de la Prueba Técnica
 
-Este proyecto conforma la resolución metodológica para la prueba técnica avanzada solicitada por **Coderland**. El sistema, titulado `Coderland Auto`, modela un caso de uso ficticio enfocado en satisfacer rigurosos estándares dentro de empresas con manejo automotriz extensivo. 
+Este proyecto conforma la resolución metodológica para la prueba técnica avanzada solicitada por **Coderland**. El sistema, titulado `Coderland Auto`, modela un caso de uso ficticio enfocado en satisfacer rigurosos estándares dentro de empresas con manejo automotriz extensivo.
 
 Bajo la figura fundamental evaluativa general de esta ingeniería, denota resiliencia, separaciones explícitas de SPA y Backend, escalados concurrentes, contención por Docker para garantizar replicabilidad y aserciones de código establecidas rigurosamente como los manuales y arquitectos evalúan dentro de mantenibilidades a largo plazo.
 
